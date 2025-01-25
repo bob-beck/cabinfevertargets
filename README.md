@@ -1,7 +1,8 @@
 # cabinfevertargets
 Cabin Fever Challenge Targets
 
-This is not real or official yet. It is me being nerdsniped by a problem.
+This is not real or official yet. It is just me being
+[nerdsniped](https://xkcd.com/356/) by a problem.
 
 Don't use this.
 
