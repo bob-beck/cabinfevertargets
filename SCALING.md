@@ -45,13 +45,18 @@ This turns into
 
 This results in basically the exactly equivalent scoring area at each distance.
 
-And while this sounds completely bonkers because we don't want a million target types, if the targets at non-standard distances are generated for the shooter, it's easy to account for using either
+This would be completely bonkers and infeasable if we were pre-generating the PDF targets. We'd have way too many files to sort through.
 
-1) A "typical" bullet diameter for a competitive rifle in the class
+However if we switch to a model where the user *generates* the non-standard
+targets - its easy to deal with, and easy to confirm looking at the target
 
-or if wer were to be completely bonkers
+1) A "typical" bullet diameter for a competitive rifle in the class (The samples here use 6mm for div 6, 8mm for div 1, 2, 3, 7, and 12mm for div 4 and 5)
 
-2) Ask the shooter for the bullet diameter and use that.
+Or if we felt like asking the shooter for one more thing:
+
+2) Ask the shooter for the bullet diameter and use that. (I think this might be going too far)
+
+
 
 
 
