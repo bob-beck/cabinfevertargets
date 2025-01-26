@@ -13,19 +13,19 @@ This leads us to *It is an advantage to shoot a a shorter distance* well, becaus
 
 If we take a target:
 
-203 mm at 100 meters (radius 102)
-102 mm at 50 meters  (radius 51)
-51 mm at 25 meters (radius 26)
+* 203 mm at 100 meters (radius 102)
+* 102 mm at 50 meters  (radius 51)
+* 51 mm at 25 meters (radius 26)
 
 if we assume (as in, let's say the case of vintage) a competitive rifle will
 make an approximately 8mm hole. The radius of the scoring area changes
 
-so at 100 meters the scoring radius os 110 mm (Scoring area .038 m2)
+At 100 meters the scoring radius is 110 mm (Scoring area .038 m2)
 
 however with the target area changing but the bullet width staying constant we get
 
-at 50 it is 59 mm - equivalent to a 118 mm scoring radius at 100 meters (Scoring area .044 m2 - a 15% larger scoring area than the 100 meter target)
-at 25 it is 34 mm - equivalent to a 136 mm scoring radius at 100 meters! (Scoring area .056 m2 - a 47% larger scoring area than the 100 meter target!)
+* At 50 it is 59 mm - equivalent to a 118 mm scoring radius at 100 meters (Scoring area .044 m2 - a 15% larger scoring area than the 100 meter target)
+* St 25 it is 34 mm - equivalent to a 136 mm scoring radius at 100 meters! (Scoring area .056 m2 - a 47% larger scoring area than the 100 meter target!)
 
 While it might be tempting to allow for a 15% advantage to make it easier for people to shoot, a 47% advantage seems really over the top.
 
@@ -39,9 +39,9 @@ The scoring area is scaled down from the "optimal" distance, and the visible tar
 
 This turns into
 
-Scoring radius of 110 at 100 meters (target radius 102mm) Target diameter 203mm
-Scoring radius of 55 at 50 meters (target radius 47mm) Target diameter 84mm
-Scoring radius of 28 at 25 meters (target radius 20mm) Target diameter 40mm
+* Scoring radius of 110 at 100 meters (target radius 102mm) Target diameter 203mm
+* Scoring radius of 55 at 50 meters (target radius 47mm) Target diameter 84mm
+* Scoring radius of 28 at 25 meters (target radius 20mm) Target diameter 40mm
 
 This results in basically the exactly equivalent scoring area at each distance.
 
