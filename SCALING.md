@@ -45,6 +45,13 @@ This turns into
 
 This results in basically the exactly equivalent scoring area at each distance.
 
+There is still a maximum distance, in that we can not really print much larger than a 203mm diameter target on A4 or letter paper.
+
+There is still a ridiculous minimum distance, With the above example somewhere
+around 7 meters we have a scoring radius of less than an 8mm bullet width, so we won't have any visible target left to print.
+
+## Can we use this in CFC?
+
 This would be completely bonkers and infeasable if we were pre-generating the PDF targets. We'd have way too many files to sort through.
 
 However if we switch to a model where the user *generates* the non-standard
