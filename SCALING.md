@@ -51,9 +51,11 @@ However if we switch to a model where the user *generates* the non-standard
 targets - its easy to deal with, and easy to confirm looking at the target that
 has the intended distance and size of the target in millimeters printed right on the target.
 
-1) A "typical" bullet diameter for a competitive rifle in the class (The samples here use 6mm for div 6, 8mm for div 1, 2, 3, 7, and 12mm for div 4 and 5)
+To use this in CFC we could decide to:
 
-Or if we felt like asking the shooter for one more thing:
+1) Use a "typical" bullet diameter for a competitive rifle in the class (The samples here use 6mm for div 6, 8mm for div 1, 2, 3, 7, and 12mm for div 4 and 5)
+
+Or if we felt like asking the shooter for one more thing when they generate their target:
 
 2) Ask the shooter for the bullet diameter and use that. (I think this might be going too far)
 
