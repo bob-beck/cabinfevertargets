@@ -63,24 +63,27 @@ use PDF::API2;
 # of the tech world.
 ###################################################################
 
-# PDF natively uses a point sie of 72 per inch, so all coordinates are
-# done based on that.
+#######
+# Helpful constants.
 
+# PDF natively uses a point size of 72 per inch, so all coordinates are
+# done based on that.
 # Target is an 8 inch (203mm) circle at 100M, therefore a 4 inch radius
 use constant R8 => (4 * 72);
-# Target is an 4 inch (203mm) circle at 50M, therefore a 2 inch radius
+# Target is an 4 inch (102mm) circle at 50M, therefore a 2 inch radius
 use constant R4 => (2 * 72);
 
 # When scaling, we convert everythig to metric.
 use constant mm => 25.4 / 72;
 use constant YardsPerMetre => 0.9144;
 
-# Things to warm the hearts of old rifle nerds:
+# Things to warm the hearts of old rifle nerds which we may or may
+# not choose to use.
 use constant ArshinPerMeter => 0.7112;
 # seems the standard Austrian Value. The KuK kept the Schritt on rifle
 # sights until the very end. 
 use constant SchrittPerMeter => 0.7586;
-# Prussian Schritt were 2 Fuss 4 Zoll - so 0.7322 meters.
+# Prussian Schritt were 2 Fuss 4 Zoll - so 0.7322 metres.
 # https://books.google.de/books?id=12pnAAAAcAAJ&pg=RA1-PA11#v=onepage&q&f=false
 # https://books.google.de/books?id=AEkIAAAAQAAJ&pg=PA95#v=onepage&q&f=false
 # This is also confusing because before unification nobody in the
@@ -92,6 +95,8 @@ use constant SchrittPerMeter => 0.7586;
 # distances involved, and the lack of match grade ammunition for
 # sub-MOA Dreyse shooting.
 
+######
+# Round a number.
 sub round($$)
 {
   my ($value, $places) = @_;
@@ -99,18 +104,145 @@ sub round($$)
   return int($value * $factor + 0.5) / $factor;
 }
 
-# "Nonsuch" because perl arrays are 0 indexed.
-my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
-		"Single-Shot", "Muzzleloaders", "22-Rimfire", "Manual-Irons");
-my @max_dist = (1000, 100, 100, 100, 100, 50, 50, 100); # Meters
-my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25); # Yards
-## The optimal target radius
-my @target_radius = (0, R8, R8, R8, R8, R8, R4, R8); # Radius
-## The distance at which the optimal target is shot
-my @target_distance = (0, 100, 100, 100, 100, 50, 50, 100); # Meters
-## Bullet diameter that adds to scoring area
-my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 12/mm, 6/mm, 8/mm);
-#my @bullet_dia = (0, 0, 0, 0, 0, 0, 0, 0);
+
+#####
+# Convert a distance in $units to $to_units;
+sub convert_distance($$$) {
+    my ($distance, $units, $to_units) = @_;
+
+    die if ($to_units ne "Yards") && ($to_units ne "Metres");
+
+    my $conversion;
+    if ($units eq "Metres") {
+	$conversion = 1.0;
+    } elsif ($units eq "Yards")  {
+	$conversion = YardsPerMetre;
+    } elsif ($units eq "Schritt") {
+	$conversion = SchrittPerMeter;
+    } elsif ($units eq "Arshin") {
+	$conversion = ArshinPerMeter;
+    } else {
+	die "Unknown unit of measuerment: $units";
+    }
+
+    my $metricdistance =  round($distance * $conversion, 2);
+    if ($to_units eq "Yards") {
+	return round($metricdistance / YardsPerMetre, 2);
+    }
+    return $metricdistance;
+}
+
+#######
+# Return official target diameter in mm from spreadsheet values.
+# for division, distance, units. returns 0 if you can't shoot
+# the division at that distance.
+sub official_diameter($$$)
+{
+    my ($division, $distance, $units) = @_;
+
+    die "Bogus division $division" if ($division > 7 || $division < 1);
+    return 0 if (!($units eq "Yards" || $units eq "Metres"));
+
+    my @distances = (25, 50, 100, 150, 200, 300);
+    my @ymaxcf = (0,  89, 184, 279, 374, 564);
+    my @mmaxcf = (0,  99, 203, 308, 412, 621);
+    my @ymaxrf = (43,  92, 190, 0, 0, 0);
+    my @mmaxrf = (48,  102, 209, 0, 0, 0);
+    my @ymaxml = (0, 184, 0, 0, 0, 0);
+    my @mmaxml = (0, 203, 0, 0, 0, 0);
+
+    my $dindex = -1;
+    for my $i (0 .. $#distances) {
+	if ($distance eq $distances[$i]) {
+	    $dindex = $i;
+	    last;
+	}
+    }
+    if ($dindex == -1) {
+	return 0;
+    }
+
+    # look it up.
+    my @max;
+    if ($units eq "Yards") {
+	if ($division == 5) {
+	    @max = @ymaxml;
+	}
+	elsif ($division == 6) {
+	    @max = @ymaxrf;
+	}else {
+	    @max = @ymaxcf;
+	}
+    } else {
+	if ($division == 5) {
+	    @max = @mmaxml;
+	}
+	elsif ($division == 6) {
+	    @max = @mmaxrf;
+	}else {
+	    @max = @mmaxcf;
+	}
+    }
+    return $max[$dindex];
+}
+
+#####
+# Return the 2025 target radius in points.
+sub official_radius($$$)
+{
+    my ($division, $distance, $units) = @_;
+    return ((official_diameter($division, $distance, $units) / 2) / mm);
+}
+
+#####
+# Return a scaled target radius, in points, given a division,
+# distance, and units.  Absolutely not the official 2025 values - we
+# can ponder this for possible future use.
+sub Scaled_radius($$$)
+{
+    my ($division, $distance, $units) = @_;
+
+    my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25); # Yards
+    ## The optimal target radius
+    my @target_radius = (0, R8, R8, R8, R8, R8, R4, R8); # Radius
+    ## The distance at which the optimal target is shot
+    my @target_distance = (0, 100, 100, 100, 100, 50, 50, 100); # Metres
+    ## Bullet diameter that adds to scoring area
+    my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 12/mm, 6/mm, 8/mm);
+
+
+    die if ($division > 7 || $division < 1);
+
+    my $metricdistance = convert_distance($distance, $units, "Metres");
+    my $yardsdistance = convert_distance($distance, $units, "Yards");
+
+    if ($yardsdistance < $min_dist[$division]) {
+	return 0;
+    }
+
+    # Ths scoring radius is the target radius, plus the bullet diameter.
+    my $optimal_scoring_r = $target_radius[$division] +
+    $bullet_dia[$division];
+
+    # Scale the scoring radius of the desired distance based on the scoring
+    # radius at the optimal distance for the division.
+    my $scaled_scoring_r = $optimal_scoring_r *
+	($metricdistance / $target_distance[$division]);
+
+    # Now remove the bullet width from the scaled scoring radius to get a
+    # correctly scaled target radius for the circle we will draw.
+    # This should give an equivalent scoring area at any distance
+    # for the given bullet diameter.
+    my $targetradius = $scaled_scoring_r - $bullet_dia[$division];
+
+    # Clamp negative or ridiculously small values to 0, you're way too
+    # close to shoot at it..
+    if ($targetradius <= 10 / mm) {
+	return 0;
+    }
+
+    return $targetradius;
+}
 
 # Make a Cabin Fever Challenge Target, arguments are division number,
 # followed by distance, followed by units you want to shoot it at.
@@ -126,16 +258,17 @@ my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 12/mm, 6/mm, 8/mm);
 # pre-validated, and units will be a selector so we don't need to
 # worry about things like Metre being spelled in English instead
 # of 'Murrican.
-sub makeCFCtarget($$$$) {
-    my ($division, $distance, $units, $paper) = @_;
+sub makeCFCtarget($$$$$) {
+    my ($division, $distance, $units, $paper, $experimental) = @_;
 
+    my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
+		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
+		    "Manual-Irons");
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
     $year = $year+1900;
 
     my $pdf  = PDF::API2->new;
-
     my $page = $pdf  -> page;
-
     # Set our page boundaries to the correct paper size.
     die "Paper must be A4 or Letter"
 	unless (($paper eq "A4") | $paper eq "Letter");
@@ -145,45 +278,15 @@ sub makeCFCtarget($$$$) {
     my $gfx  = $page -> graphics(-prepend=>0);
     my $txt  = $page -> text;
 
-    my $conversion;
-    if ($units eq "Metres") {
-	$conversion = 1.0;
-    } elsif ($units eq "Yards")  {
-	$conversion = YardsPerMetre;
-    } elsif ($units eq "Schritt") {
-	$conversion = SchrittPerMeter;
-    } elsif ($units eq "Arshin") {
-	$conversion = ArshinPerMeter;
+    my $actualsize;
+    # What is the radius ot the circle we should print, in points?
+    if (!$experimental) {
+	$actualsize = official_radius($division, $distance, $units);
     } else {
-	die "Unknown unit of measuerment: $units";
+	$actualsize = Scaled_radius($division, $distance, $units);
     }
 
-    # Compute the actual shooting distance.
-    my $metricdistance = round($distance * $conversion, 2);
-    my $yardsdistance =  round($metricdistance / YardsPerMetre, 2);
-
-    if ($yardsdistance < $min_dist[$division]) {
-	die "$distance $units is too short a distance to shoot Division $division";
-    }
-    if ($metricdistance > $max_dist[$division]) {
-	die "$distance $units is too far a distance to shoot Division $division";
-    }
-
-
-    # The scoring radius of the target at the correct distance.
-    my $optimal_scoring_r = $target_radius[$division] +
-	$bullet_dia[$division];
-
-    # Scale the scoring radius of the desired distance based on the scoring
-    # radius at the correct distance.
-    my $scaled_scoring_r = $optimal_scoring_r *
-	($metricdistance / $target_distance[$division]);
-
-    # Now remove the bullet width from the scaled scoring radius to get a
-    # correctly scaled target radius for the circle we will draw.
-    my $actualsize = $scaled_scoring_r - $bullet_dia[$division];
-
-    # Compute how big in milimeters it is supposed to be. We
+    # Compute how big in millimetres it is supposed to be. We
     # display this right on the target for confirmation purposes.
     my $diameterinmm = round($actualsize * mm * 2.0, 0);
 
@@ -196,14 +299,16 @@ sub makeCFCtarget($$$$) {
     $txt->crlf();
 
     # Second line is the distance in requested units, an equivalent
-    # reminder distance, and the size of the target in millimeters.
+    # reminder distance, and the size of the target in millimetres.
     # The reminder distance for metric is in yards, for any other
     # unit of measure it is in metric. This serves as a bit of a
     # wakeup call to someone shooting a yards target at metric distance
     # and vice versa, as they are stapling it up.
     if ($units eq "Metres") {
+	my $yardsdistance = convert_distance($distance, $units, "Yards");
 	$txt->text("Target For Distance: $distance Metres ($yardsdistance Yards) Diameter $diameterinmm mm");
     } else {
+	my $metricdistance = convert_distance($distance, $units, "Metres");
 	$txt->text("Target For Distance: $distance $units ($metricdistance Metres) Diameter $diameterinmm mm");
     }
     $txt->crlf();
@@ -211,15 +316,33 @@ sub makeCFCtarget($$$$) {
     # Third line is the reminder for what paper they should be printed on.
     $txt->text("Must be printed on $paper size paper");
 
-    # Finally, let's draw the big black circle for them to poke holes in.
-    $gfx -> fillcolor('black');
-    # find the centre of the page.
-    my ($x1, $y1, $x2, $y2) = $page->boundaries('media');
-    my $midx = ($x2 - $x1) / 2;
-    my $midy = ($y2 - $y1) / 2;
-    # make the circle at the centre of the page
-    $gfx -> circle( $midx, $midy, $actualsize);
-    $gfx -> fill;
+    if ($actualsize == 0) {
+	# We can not shoot at this distance
+	$txt->crlf();
+	$txt->crlf();
+	$txt->text("You can not shoot Divison $division at $distance $units!");
+    } elsif ($diameterinmm >= 210) {
+	# You can shoot at this distance, but we can't print it on A4/Letter.
+	$txt->crlf();
+	$txt->crlf();
+	$txt->text("Division $division max target size at $distance $units is $diameterinmm mm");
+	$txt->crlf();
+	$txt->text("This is too big to print on $paper paper");
+	$txt->crlf();
+	$txt->text("If you shoot an unofficial target at this distance,");
+	$txt->crlf();
+	$txt->text("please show a ruler over the target with your submission.");
+    } else {
+	# Finally, let's draw the big black circle for them to poke holes in.
+	$gfx -> fillcolor('black');
+	# find the centre of the page.
+	my ($x1, $y1, $x2, $y2) = $page->boundaries('media');
+	my $midx = ($x2 - $x1) / 2;
+	my $midy = ($y2 - $y1) / 2;
+	# make the circle at the centre of the page
+	$gfx -> circle( $midx, $midy, $actualsize);
+	$gfx -> fill;
+    }
 
     my $filename = "Division-$division-" .$div_name[$division]."-$distance-$units-$paper.pdf";
     $filename =~ s/ /-/g;
@@ -227,95 +350,116 @@ sub makeCFCtarget($$$$) {
     $pdf -> end;
 }
 
+my ($ex_arg) = @ARGV;
+
+my $experimental = 0;
+if (defined $ex_arg) {
+    if ($ex_arg eq "scaled") {
+	$experimental = 1;
+    }
+}
+
 ## Just for testing - if these look ok, We
 ## do the work to hook up "makeCFCtarget" to a
 ## little web form for a competitor to generate
 ## their own target.
-makeCFCtarget(1, 100, "Metres", "Letter");
-makeCFCtarget(1, 100, "Yards", "Letter");
-makeCFCtarget(2, 100, "Metres", "Letter");
-makeCFCtarget(2, 100, "Yards", "Letter");
-makeCFCtarget(3, 100, "Metres", "Letter");
-makeCFCtarget(3, 100, "Yards", "Letter");
-makeCFCtarget(4, 100, "Metres", "Letter");
-makeCFCtarget(4, 100, "Yards", "Letter");
-makeCFCtarget(7, 100, "Metres", "Letter");
-makeCFCtarget(7, 100, "Yards", "Letter");
+makeCFCtarget(1, 100, "Metres", "Letter", $experimental);
+makeCFCtarget(1, 100, "Yards", "Letter", $experimental);
+makeCFCtarget(1, 150, "Yards", "Letter", $experimental);
+makeCFCtarget(1, 150, "Metres", "Letter", $experimental);
+makeCFCtarget(1, 200, "Yards", "Letter", $experimental);
+makeCFCtarget(1, 200, "Metres", "Letter", $experimental);
+makeCFCtarget(1, 300, "Yards", "Letter", $experimental);
+makeCFCtarget(1, 300, "Metres", "Letter", $experimental);
+makeCFCtarget(2, 100, "Metres", "Letter", $experimental);
+makeCFCtarget(2, 100, "Yards", "Letter", $experimental);
+makeCFCtarget(3, 100, "Metres", "Letter", $experimental);
+makeCFCtarget(3, 100, "Yards", "Letter", $experimental);
+makeCFCtarget(4, 100, "Metres", "Letter", $experimental);
+makeCFCtarget(4, 100, "Yards", "Letter", $experimental);
+makeCFCtarget(7, 100, "Metres", "Letter", $experimental);
+makeCFCtarget(7, 100, "Yards", "Letter", $experimental);
 
-makeCFCtarget(1, 50, "Metres", "Letter");
-makeCFCtarget(1, 50, "Yards", "Letter");
-makeCFCtarget(2, 50, "Metres", "Letter");
-makeCFCtarget(2, 50, "Yards", "Letter");
-makeCFCtarget(3, 50, "Metres", "Letter");
-makeCFCtarget(3, 50, "Yards", "Letter");
-makeCFCtarget(4, 50, "Metres", "Letter");
-makeCFCtarget(4, 50, "Yards", "Letter");
-makeCFCtarget(5, 50, "Metres", "Letter");
-makeCFCtarget(5, 50, "Yards", "Letter");
-makeCFCtarget(6, 50, "Metres", "Letter");
-makeCFCtarget(6, 50, "Yards", "Letter");
-makeCFCtarget(7, 50, "Metres", "Letter");
-makeCFCtarget(7, 50, "Yards", "Letter");
+makeCFCtarget(1, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(1, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(2, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(2, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(3, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(3, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(4, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(4, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(5, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(5, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(6, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(6, 50, "Yards", "Letter", $experimental);
+makeCFCtarget(7, 50, "Metres", "Letter", $experimental);
+makeCFCtarget(7, 50, "Yards", "Letter", $experimental);
 
-makeCFCtarget(1, 25, "Metres", "Letter");
-makeCFCtarget(1, 25, "Yards", "Letter");
-makeCFCtarget(2, 25, "Metres", "Letter");
-makeCFCtarget(2, 25, "Yards", "Letter");
-makeCFCtarget(3, 25, "Metres", "Letter");
-makeCFCtarget(3, 25, "Yards", "Letter");
-makeCFCtarget(4, 25, "Metres", "Letter");
-makeCFCtarget(4, 25, "Yards", "Letter");
-makeCFCtarget(5, 25, "Metres", "Letter");
-makeCFCtarget(5, 25, "Yards", "Letter");
-makeCFCtarget(6, 25, "Metres", "Letter");
-makeCFCtarget(6, 25, "Yards", "Letter");
-makeCFCtarget(7, 25, "Metres", "Letter");
-makeCFCtarget(7, 25, "Yards", "Letter");
+makeCFCtarget(1, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(1, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(2, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(2, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(3, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(3, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(4, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(4, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(5, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(5, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(6, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(6, 25, "Yards", "Letter", $experimental);
+makeCFCtarget(7, 25, "Metres", "Letter", $experimental);
+makeCFCtarget(7, 25, "Yards", "Letter", $experimental);
 
-makeCFCtarget(5, 50, "Schritt", "Letter");
-makeCFCtarget(4, 100, "Arshin", "Letter");
+makeCFCtarget(5, 50, "Schritt", "Letter", $experimental);
+makeCFCtarget(4, 100, "Arshin", "Letter", $experimental);
 
 
-makeCFCtarget(1, 100, "Metres", "A4");
-makeCFCtarget(1, 100, "Yards", "A4");
-makeCFCtarget(2, 100, "Metres", "A4");
-makeCFCtarget(2, 100, "Yards", "A4");
-makeCFCtarget(3, 100, "Metres", "A4");
-makeCFCtarget(3, 100, "Yards", "A4");
-makeCFCtarget(4, 100, "Metres", "A4");
-makeCFCtarget(4, 100, "Yards", "A4");
-makeCFCtarget(7, 100, "Metres", "A4");
-makeCFCtarget(7, 100, "Yards", "A4");
+makeCFCtarget(1, 100, "Metres", "A4", $experimental);
+makeCFCtarget(1, 100, "Yards", "A4", $experimental);
+makeCFCtarget(1, 150, "Yards", "A4", $experimental);
+makeCFCtarget(1, 150, "Metres", "A4", $experimental);
+makeCFCtarget(1, 200, "Yards", "A4", $experimental);
+makeCFCtarget(1, 200, "Metres", "A4", $experimental);
+makeCFCtarget(1, 300, "Yards", "A4", $experimental);
+makeCFCtarget(1, 300, "Metres", "A4", $experimental);
+makeCFCtarget(2, 100, "Metres", "A4", $experimental);
+makeCFCtarget(2, 100, "Yards", "A4", $experimental);
+makeCFCtarget(3, 100, "Metres", "A4", $experimental);
+makeCFCtarget(3, 100, "Yards", "A4", $experimental);
+makeCFCtarget(4, 100, "Metres", "A4", $experimental);
+makeCFCtarget(4, 100, "Yards", "A4", $experimental);
+makeCFCtarget(7, 100, "Metres", "A4", $experimental);
+makeCFCtarget(7, 100, "Yards", "A4", $experimental);
 
-makeCFCtarget(1, 50, "Metres", "A4");
-makeCFCtarget(1, 50, "Yards", "A4");
-makeCFCtarget(2, 50, "Metres", "A4");
-makeCFCtarget(2, 50, "Yards", "A4");
-makeCFCtarget(3, 50, "Metres", "A4");
-makeCFCtarget(3, 50, "Yards", "A4");
-makeCFCtarget(4, 50, "Metres", "A4");
-makeCFCtarget(4, 50, "Yards", "A4");
-makeCFCtarget(5, 50, "Metres", "A4");
-makeCFCtarget(5, 50, "Yards", "A4");
-makeCFCtarget(6, 50, "Metres", "A4");
-makeCFCtarget(6, 50, "Yards", "A4");
-makeCFCtarget(7, 50, "Metres", "A4");
-makeCFCtarget(7, 50, "Yards", "A4");
+makeCFCtarget(1, 50, "Metres", "A4", $experimental);
+makeCFCtarget(1, 50, "Yards", "A4", $experimental);
+makeCFCtarget(2, 50, "Metres", "A4", $experimental);
+makeCFCtarget(2, 50, "Yards", "A4", $experimental);
+makeCFCtarget(3, 50, "Metres", "A4", $experimental);
+makeCFCtarget(3, 50, "Yards", "A4", $experimental);
+makeCFCtarget(4, 50, "Metres", "A4", $experimental);
+makeCFCtarget(4, 50, "Yards", "A4", $experimental);
+makeCFCtarget(5, 50, "Metres", "A4", $experimental);
+makeCFCtarget(5, 50, "Yards", "A4", $experimental);
+makeCFCtarget(6, 50, "Metres", "A4", $experimental);
+makeCFCtarget(6, 50, "Yards", "A4", $experimental);
+makeCFCtarget(7, 50, "Metres", "A4", $experimental);
+makeCFCtarget(7, 50, "Yards", "A4", $experimental);
 
-makeCFCtarget(1, 25, "Metres", "A4");
-makeCFCtarget(1, 25, "Yards", "A4");
-makeCFCtarget(2, 25, "Metres", "A4");
-makeCFCtarget(2, 25, "Yards", "A4");
-makeCFCtarget(3, 25, "Metres", "A4");
-makeCFCtarget(3, 25, "Yards", "A4");
-makeCFCtarget(4, 25, "Metres", "A4");
-makeCFCtarget(4, 25, "Yards", "A4");
-makeCFCtarget(5, 25, "Metres", "A4");
-makeCFCtarget(5, 25, "Yards", "A4");
-makeCFCtarget(6, 25, "Metres", "A4");
-makeCFCtarget(6, 25, "Yards", "A4");
-makeCFCtarget(7, 25, "Metres", "A4");
-makeCFCtarget(7, 25, "Yards", "A4");
+makeCFCtarget(1, 25, "Metres", "A4", $experimental);
+makeCFCtarget(1, 25, "Yards", "A4", $experimental);
+makeCFCtarget(2, 25, "Metres", "A4", $experimental);
+makeCFCtarget(2, 25, "Yards", "A4", $experimental);
+makeCFCtarget(3, 25, "Metres", "A4", $experimental);
+makeCFCtarget(3, 25, "Yards", "A4", $experimental);
+makeCFCtarget(4, 25, "Metres", "A4", $experimental);
+makeCFCtarget(4, 25, "Yards", "A4", $experimental);
+makeCFCtarget(5, 25, "Metres", "A4", $experimental);
+makeCFCtarget(5, 25, "Yards", "A4", $experimental);
+makeCFCtarget(6, 25, "Metres", "A4", $experimental);
+makeCFCtarget(6, 25, "Yards", "A4", $experimental);
+makeCFCtarget(7, 25, "Metres", "A4", $experimental);
+makeCFCtarget(7, 25, "Yards", "A4", $experimental);
 
-makeCFCtarget(5, 50, "Schritt", "A4");
-makeCFCtarget(4, 100, "Arshin", "A4");
+makeCFCtarget(5, 50, "Schritt", "A4", $experimental);
+makeCFCtarget(4, 100, "Arshin", "A4", $experimental);
