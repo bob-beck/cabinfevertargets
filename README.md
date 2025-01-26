@@ -16,7 +16,7 @@ Therefore If I knew I wanted to shoot Division 2, at 75 yards, and I had printer
 
 For a maths-y discussion of target scaling, see [SCALING.md](SCALING.md)
 
-For current output using simplistic target scaling, see the [samples](samples] directory
+For current output using simplistic target scaling, see the [samples](samples) directory
 
 For current output using target scaling by scoring area accounting forbullet diameter, see the [bullet_width_scaled_samples](bullet_width_scaled_samples) directory. (This directory uses a bullet width of 8mm for div 1, 2, 3, and 7, 12 mm for div 4 and 5, and 6mm for div 6)
 
