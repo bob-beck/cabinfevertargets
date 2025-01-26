@@ -18,9 +18,9 @@ For a maths-y discussion of target scaling, see [SCALING.md](SCALING.md)
 
 For current output using simplistic target scaling, see the [samples](samples) directory
 
-For current output using target scaling by scoring area accounting forbullet diameter, see the [bullet_width_scaled_samples](bullet_width_scaled_samples) directory. (This directory uses a bullet width of 8mm for div 1, 2, 3, and 7, 12 mm for div 4 and 5, and 6mm for div 6)
+For current output using target scaling by scoring area accounting for bullet diameter, see the [bullet_width_scaled_samples](bullet_width_scaled_samples) directory. (This directory uses a bullet width of 8mm for div 1, 2, 3, and 7, 12 mm for div 4 and 5, and 6mm for div 6)
 
-(normally we would not keep anything like a bunch of thesepregenerated files aroud, this is just for testing.)
+(normally we would not keep anything like a bunch of these pregenerated files aroud, this is just for testing.)
 
 The code for the program that does this is in the [src](src) directory if you are inclined to read or fiddle with it.
 
