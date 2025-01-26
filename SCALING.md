@@ -5,7 +5,7 @@ When thinking about target scaling, we think about taking the size of a target, 
 
 ## The target is not the area that scores
 
-However, when we shoot targets, generally, any hold that breaks the outer line of the target counts for score. This means that the effective area that will score is not the area of the target, but rather the area of the target **plus a ring of the diameter of the bullet being fired at it**
+However, when we shoot targets, generally, any hit that breaks the outer line of the target counts for score. This means that the effective area that will score is not the area of the target, but rather the area of the target **plus a ring of the diameter of the bullet being fired at it**
 
 This leads us to *It is an advantage to shoot a a shorter distance* well, because it is, and it makes us uncomfortable allowing it by "too much"
 
@@ -35,7 +35,7 @@ The solution actually isn't that hard
 
 With this we then consider an actual, or typical bullet width for the division, and keep that constant,
 
-The scoring area is scaled down from the "optimal" distance, and the visible target size is the cirgle left over by removing the bullet width (in this case 8mm from each radius
+The scoring area is scaled down from the "optimal" distance, and the visible target size is the cirgle left over by removing the bullet width (in this case 8mm from each radius)
 
 This turns into
 
