@@ -40,7 +40,7 @@ The scoring area is scaled down from the "optimal" distance, and the visible tar
 This turns into
 
 * Scoring radius of 110 at 100 meters (target radius 102mm) Target diameter 203mm
-* Scoring radius of 55 at 50 meters (target radius 47mm) Target diameter 84mm
+* Scoring radius of 55 at 50 meters (target radius 47mm) Target diameter 94mm
 * Scoring radius of 28 at 25 meters (target radius 20mm) Target diameter 40mm
 
 This results in basically the exactly equivalent scoring area at each distance.
