@@ -67,7 +67,9 @@ use PDF::API2;
 # done based on that.
 
 # Target is an 8 inch (203mm) circle at 100M, therefore a 4 inch radius
-use constant TargetRadius => (4 * 72);
+use constant R8 => (4 * 72);
+# Target is an 4 inch (203mm) circle at 50M, therefore a 2 inch radius
+use constant R4 => (2 * 72);
 
 # When scaling, we convert everythig to metric.
 use constant mm => 25.4 / 72;
@@ -100,10 +102,15 @@ sub round($$)
 # "Nonsuch" because perl arrays are 0 indexed.
 my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
 		"Single-Shot", "Muzzleloaders", "22-Rimfire", "Manual-Irons");
-my @div_scale = (1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0);
 my @max_dist = (1000, 100, 100, 100, 100, 50, 50, 100); # Meters
-my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25, 25,); # Yards
-
+my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25); # Yards
+## The optimal target radius
+my @target_radius = (0, R8, R8, R8, R8, R8, R4, R8); # Radius
+## The distance at which the optimal target is shot
+my @target_distance = (0, 100, 100, 100, 100, 50, 50, 100); # Meters
+## Bullet diameter that adds to scoring area
+my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 12/mm, 6/mm, 8/mm);
+#my @bullet_dia = (0, 0, 0, 0, 0, 0, 0, 0);
 
 # Make a Cabin Fever Challenge Target, arguments are division number,
 # followed by distance, followed by units you want to shoot it at.
@@ -162,11 +169,20 @@ sub makeCFCtarget($$$$) {
 	die "$distance $units is too far a distance to shoot Division $division";
     }
 
-    # Given the distance and the scaleup factor for the division,
-    # compute the actual needed radius of the target circle by
-    # scaling TargetRadius - the 100 Metre 8 inch target radius.
-    my $scaleup = $div_scale[$division];
-    my $actualsize = (TargetRadius) * ($metricdistance / 100.00) * $scaleup;
+
+    # The scoring radius of the target at the correct distance.
+    my $optimal_scoring_r = $target_radius[$division] +
+	$bullet_dia[$division];
+
+    # Scale the scoring radius of the desired distance based on the scoring
+    # radius at the correct distance.
+    my $scaled_scoring_r = $optimal_scoring_r *
+	($metricdistance / $target_distance[$division]);
+
+    # Now remove the bullet width from the scaled scoring radius to get a
+    # correctly scaled target radius for the circle we will draw.
+    my $actualsize = $scaled_scoring_r - $bullet_dia[$division];
+
     # Compute how big in milimeters it is supposed to be. We
     # display this right on the target for confirmation purposes.
     my $diameterinmm = round($actualsize * mm * 2.0, 0);
