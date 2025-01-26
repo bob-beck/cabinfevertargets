@@ -17,8 +17,7 @@ Therefore If I knew I wanted to shoot Division 2, at 50 yards, and I had printer
 If the division can be shot at the distance, but the target can not be printed
 on Letter or A4, well, it tells you that.
 
-For current output using the 2025 official target sizes, see the [samples](samp
-les) directory
+For current output using the 2025 official target sizes, see the [samples](samples) directory
 
 # Experimental Scaling
 
