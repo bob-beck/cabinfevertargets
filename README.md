@@ -22,7 +22,7 @@ For current output using target scaling by scoring area accounting forbullet dia
 
 (normally we would not keep anything like a bunch of thesepregenerated files aroud, this is just for testing.)
 
-For the code look in the src directory
+The code for the program that does this is in the [src](src) directory if you are inclined to read or fiddle with it.
 
 I have not yet hooked this up with a web front end to let a shooter just generate targets. It's not hard, but I'll do that if and when I know it generates correct stuff, and the CFC decides it actually wants to use this method, which might not be this year.
 
