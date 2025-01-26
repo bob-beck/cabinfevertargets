@@ -56,7 +56,7 @@ This would be completely bonkers and infeasable if we were pre-generating the PD
 
 However if we switch to a model where the user *generates* the non-standard
 targets - its easy to deal with, and easy to confirm looking at the target that
-has the intended distance and size of the target in millimeters printed right on the target.
+has the division, intended distance and size of the target in millimeters printed right on the target.
 
 To use this in CFC we could decide to:
 
