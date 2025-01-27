@@ -261,6 +261,9 @@ sub Scaled_radius($$$)
 sub makeCFCtarget($$$$$) {
     my ($division, $distance, $units, $paper, $experimental) = @_;
 
+    die "Paper must be A4 or Letter"
+	unless (($paper eq "A4") | $paper eq "Letter");
+
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
 		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
 		    "Manual-Irons");
@@ -268,10 +271,20 @@ sub makeCFCtarget($$$$$) {
     $year = $year+1900;
 
     my $pdf  = PDF::API2->new;
+
+    # Try to prevent scaling in viewers which may turn into scaling when
+    # printed from viewers (i.e. a browser) instead of sending the file
+    # directly to a printer.
+    $pdf->preferences(-printscalingnone=>1);
+
+    # Set our page boundaries to the correct paper size, with repeated
+    # hints to attempt to ensure the randomly written browser and
+    # printer software stacks that will be touching this will
+    # hopefully be convinced to not pervert it themselves. We probably
+    # can't win 100% of the time, but it would be nice if it is usually
+    # correct in the common cases with the correct paper size selected.
+    $pdf->mediabox($paper);
     my $page = $pdf  -> page;
-    # Set our page boundaries to the correct paper size.
-    die "Paper must be A4 or Letter"
-	unless (($paper eq "A4") | $paper eq "Letter");
     $page->boundaries(media => $paper);
 
     # XXX decide if we should mess with prepend or not?
@@ -314,7 +327,7 @@ sub makeCFCtarget($$$$$) {
     $txt->crlf();
 
     # Third line is the reminder for what paper they should be printed on.
-    $txt->text("Must be printed on $paper size paper");
+    $txt->text("Must be printed on $paper size paper with printer set to print $paper");
 
     if ($actualsize == 0) {
 	# We can not shoot at this distance
