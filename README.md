@@ -39,7 +39,7 @@ demand.
 
 The code for the program that does this is in the [src](src) directory if you are inclined to read or fiddle with it.
 
-I have not yet hooked this up with a web front end to let a shooter just [src/form.html](generate targets). It's not hard, but I'll do that if and when I know it generates correct stuff, and the CFC decides it actually wants to use this method, which might not be this year.
+I have not yet hooked this up with a web front end to let a shooter just [src](generate targets). It's not hard, but I'll do that if and when I know it generates correct stuff, and the CFC decides it actually wants to use this method, which might not be this year.
 
 
 
