@@ -302,6 +302,8 @@ sub makeCFCtarget($$$$$) {
     # Compute how big in millimetres it is supposed to be. We
     # display this right on the target for confirmation purposes.
     my $diameterinmm = round($actualsize * mm * 2.0, 0);
+    # Metric is hard in some places.
+    my $diameterininches = round(($actualsize / 72) * 2.0, 2);
 
     # Finally, put some text on the target
     $txt->font($pdf->corefont('Helvetica Bold'), 18);
@@ -348,9 +350,9 @@ sub makeCFCtarget($$$$$) {
     } else {
 	$txt->font($pdf->corefont('Helvetica'), 12);
 	$txt->crlf();
-	$txt->text("Check that the target dimensions are correct before shooting!");
+	$txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
 	$txt->crlf();
-	$txt->text("If the target is not the correct size check that your printer and tray settings are set to $paper");
+	$txt->text("If the target is not the corrct width check that your printer and tray settings are set to $paper");
 
 	# Finally, let's draw the big black circle for them to poke holes in.
 	$gfx -> fillcolor('black');
