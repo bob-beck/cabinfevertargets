@@ -333,6 +333,7 @@ sub makeCFCtarget($$$$$) {
     $txt->text("Check that the target dimensions are correct before shooting!");
     $txt->crlf();
     $txt->text("If the target is not the correct size check that your printer and tray settings are set to $paper");
+    $txt->font($pdf->corefont('Helvetica Bold'), 18);
 
     if ($actualsize == 0) {
 	# We can not shoot at this distance
