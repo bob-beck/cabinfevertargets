@@ -352,7 +352,7 @@ sub makeCFCtarget($$$$$) {
 	$txt->crlf();
 	$txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
 	$txt->crlf();
-	$txt->text("If the target is not the corrct width check that your printer and tray settings are set to $paper");
+	$txt->text("If the target has not printed correctly, check that your printer and tray settings are set to $paper");
 
 	# Finally, let's draw the big black circle for them to poke holes in.
 	$gfx -> fillcolor('black');
