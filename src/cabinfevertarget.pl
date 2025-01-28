@@ -328,12 +328,6 @@ sub makeCFCtarget($$$$$) {
     # Third line is the reminder for what paper they should be printed on.
     $txt->crlf();
     $txt->text("Must be printed on $paper size paper with printer set to print $paper");
-    $txt->font($pdf->corefont('Helvetica'), 12);
-    $txt->crlf();
-    $txt->text("Check that the target dimensions are correct before shooting!");
-    $txt->crlf();
-    $txt->text("If the target is not the correct size check that your printer and tray settings are set to $paper");
-    $txt->font($pdf->corefont('Helvetica Bold'), 18);
 
     if ($actualsize == 0) {
 	# We can not shoot at this distance
@@ -352,6 +346,12 @@ sub makeCFCtarget($$$$$) {
 	$txt->crlf();
 	$txt->text("please show a ruler over the target with your submission.");
     } else {
+	$txt->font($pdf->corefont('Helvetica'), 12);
+	$txt->crlf();
+	$txt->text("Check that the target dimensions are correct before shooting!");
+	$txt->crlf();
+	$txt->text("If the target is not the correct size check that your printer and tray settings are set to $paper");
+
 	# Finally, let's draw the big black circle for them to poke holes in.
 	$gfx -> fillcolor('black');
 	# find the centre of the page.
