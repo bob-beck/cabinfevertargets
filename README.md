@@ -39,7 +39,13 @@ demand.
 
 The code for the program that does this is in the [src](src) directory if you are inclined to read or fiddle with it.
 
-I have not yet hooked this up with a web front end to let a shooter just [generate targets](src/form.html). It's not hard, but I'll do that if and when I know it generates correct stuff, and the CFC decides it actually wants to use this method, which might not be this year.
+I have hooked this up to a sample page that generates the 2025 size targets
+at [https://obtuse.com/cfc/](https://obtuse.com/cfc/), which lets you pick
+the parameters on the form and make any target.
 
+Alternatively targets can be linked with parameters to generate a single
+target out of a web page source such as:
 
+(Division 1, 100 Yards, Letter)[https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=Letter&Distance=100&Units=Yards)
 
+(Division 1, 100 Metres, A4)[https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=A4&Distance=100&Units=Metres)
