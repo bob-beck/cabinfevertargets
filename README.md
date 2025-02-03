@@ -46,6 +46,6 @@ the parameters on the form and make any target.
 Alternatively targets can be linked with parameters to generate a single
 target out of a web page source such as:
 
-(Division 1, 100 Yards, Letter)[https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=Letter&Distance=100&Units=Yards)
+(Division 1, 100 Yards, Letter)(https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=Letter&Distance=100&Units=Yards)
 
-(Division 1, 100 Metres, A4)[https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=A4&Distance=100&Units=Metres)
+(Division 1, 100 Metres, A4)(https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=A4&Distance=100&Units=Metres)
