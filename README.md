@@ -51,6 +51,6 @@ target out of a web page source such as:
 [Division 1, 100 Metres, A4](https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=A4&Distance=100&Units=Metres)
 
 Finally, there is a form to generate the experimental targets as
-discussed in [SCALING.md](SCALING.md)
+discussed in [SCALING.md](SCALING.md). This is at
 [https://obtuse.com/cfc-experimental/](https://obtuse.com/cfc-experimental/). Again,
-this does *NOT* generate correct size targets.
+this does *NOT* generate correct size targets, so only look at this if you've read the SCALING doc and are curious.
