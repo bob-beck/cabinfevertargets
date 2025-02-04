@@ -13,7 +13,7 @@ it makes the target by spitting out pdf code to draw and fill a circle
 of the correct size. 
 
 If the division can be shot at the distance, but the target can not be printed
-on the selecte paper size, it tells you that. 
+on the selected paper size, it tells you that. 
 
 I have hooked this up to a web form that can generates the 2025 size targets
 at [https://obtuse.com/cfc/](https://obtuse.com/cfc/), which lets you pick
