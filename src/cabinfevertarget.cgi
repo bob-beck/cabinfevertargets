@@ -318,7 +318,12 @@ sub makeCFCtarget($$$$$) {
     $txt->position($x1 + 30, $y2 - 30);
 
     #First line is what year and Division this is for.
-    $txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
+    if ($experimental) {
+	$txt->text("EXPERIMENTAL DO NOT USE, Division $division (".$div_name[$division].")");
+    }
+    else {
+	$txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
+    }
     $txt->crlf();
 
     # Second line is the distance in requested units, an equivalent
@@ -386,124 +391,9 @@ my $cgi = CGI->new();
 my $Division = $cgi->param('Division');
 my $Distance = $cgi->param('Distance'); 
 my $Units = $cgi->param('Units'); 
-my $Paper = $cgi->param('Paper'); 
+my $Paper = $cgi->param('Paper');
+my $Experimental = $cgi->param('Experimental');
 
-my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, 0);
+my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, $Experimental);
 print $cgi->header('application/pdf');
 print $pdfstring;
-
-########################
-if (0) {
-    my ($ex_arg) = @ARGV;
-
-    my $experimental = 0;
-    if (defined $ex_arg) {
-	if ($ex_arg eq "scaled") {
-	    $experimental = 1;
-	}
-    }
-
-    ## Just for testing - if these look ok, We
-    ## do the work to hook up "makeCFCtarget" to a
-    ## little web form for a competitor to generate
-    ## their own target.
-    makeCFCtarget(1, 100, "Yards", "Letter", $experimental);
-    makeCFCtarget(1, 150, "Yards", "Letter", $experimental);
-    makeCFCtarget(1, 150, "Metres", "Letter", $experimental);
-    makeCFCtarget(1, 200, "Yards", "Letter", $experimental);
-    makeCFCtarget(1, 200, "Metres", "Letter", $experimental);
-    makeCFCtarget(1, 300, "Yards", "Letter", $experimental);
-    makeCFCtarget(1, 300, "Metres", "Letter", $experimental);
-    makeCFCtarget(2, 100, "Metres", "Letter", $experimental);
-    makeCFCtarget(2, 100, "Yards", "Letter", $experimental);
-    makeCFCtarget(3, 100, "Metres", "Letter", $experimental);
-    makeCFCtarget(3, 100, "Yards", "Letter", $experimental);
-    makeCFCtarget(4, 100, "Metres", "Letter", $experimental);
-    makeCFCtarget(4, 100, "Yards", "Letter", $experimental);
-    makeCFCtarget(7, 100, "Metres", "Letter", $experimental);
-    makeCFCtarget(7, 100, "Yards", "Letter", $experimental);
-    
-    makeCFCtarget(1, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(1, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(2, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(2, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(3, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(3, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(4, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(4, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(5, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(5, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(6, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(6, 50, "Yards", "Letter", $experimental);
-    makeCFCtarget(7, 50, "Metres", "Letter", $experimental);
-    makeCFCtarget(7, 50, "Yards", "Letter", $experimental);
-    
-    makeCFCtarget(1, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(1, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(2, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(2, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(3, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(3, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(4, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(4, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(5, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(5, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(6, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(6, 25, "Yards", "Letter", $experimental);
-    makeCFCtarget(7, 25, "Metres", "Letter", $experimental);
-    makeCFCtarget(7, 25, "Yards", "Letter", $experimental);
-    
-    makeCFCtarget(5, 50, "Schritt", "Letter", $experimental);
-    makeCFCtarget(4, 100, "Arshin", "Letter", $experimental);
-    
-    
-    makeCFCtarget(1, 100, "Metres", "A4", $experimental);
-    makeCFCtarget(1, 100, "Yards", "A4", $experimental);
-    makeCFCtarget(1, 150, "Yards", "A4", $experimental);
-    makeCFCtarget(1, 150, "Metres", "A4", $experimental);
-    makeCFCtarget(1, 200, "Yards", "A4", $experimental);
-    makeCFCtarget(1, 200, "Metres", "A4", $experimental);
-    makeCFCtarget(1, 300, "Yards", "A4", $experimental);
-    makeCFCtarget(1, 300, "Metres", "A4", $experimental);
-    makeCFCtarget(2, 100, "Metres", "A4", $experimental);
-    makeCFCtarget(2, 100, "Yards", "A4", $experimental);
-    makeCFCtarget(3, 100, "Metres", "A4", $experimental);
-    makeCFCtarget(3, 100, "Yards", "A4", $experimental);
-    makeCFCtarget(4, 100, "Metres", "A4", $experimental);
-    makeCFCtarget(4, 100, "Yards", "A4", $experimental);
-    makeCFCtarget(7, 100, "Metres", "A4", $experimental);
-    makeCFCtarget(7, 100, "Yards", "A4", $experimental);
-    
-    makeCFCtarget(1, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(1, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(2, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(2, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(3, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(3, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(4, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(4, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(5, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(5, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(6, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(6, 50, "Yards", "A4", $experimental);
-    makeCFCtarget(7, 50, "Metres", "A4", $experimental);
-    makeCFCtarget(7, 50, "Yards", "A4", $experimental);
-    
-    makeCFCtarget(1, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(1, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(2, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(2, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(3, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(3, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(4, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(4, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(5, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(5, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(6, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(6, 25, "Yards", "A4", $experimental);
-    makeCFCtarget(7, 25, "Metres", "A4", $experimental);
-    makeCFCtarget(7, 25, "Yards", "A4", $experimental);
-    
-    makeCFCtarget(5, 50, "Schritt", "A4", $experimental);
-    makeCFCtarget(4, 100, "Arshin", "A4", $experimental);
-}
