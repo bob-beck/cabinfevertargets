@@ -7,7 +7,7 @@ When thinking about target scaling, we think about taking the size of a target, 
 
 However, when we shoot targets, generally, any hit that breaks the outer line of the target counts for score. This means that the effective area that will score is not the area of the target, but rather the area of the target **plus a ring aound the target of the diameter of the bullet being fired at it**
 
-So in reducing the range to shoot at, if we scale a target linearly, we have a problem. *It is an advantage to shoot a a shorter distance* .
+So in reducing the range to shoot at, if we scale a target linearly, we have a problem. *It is an advantage to shoot at a shorter distance* .
 
 ## Bullet width matters with large reductions
 
