@@ -1,25 +1,29 @@
 # cabinfevertargets
 Cabin Fever Challenge Targets
 
-This is not real or official yet. It is just me being
-[nerdsniped](https://xkcd.com/356/) by a problem.
+This is the result of my being [nerdsniped](https://xkcd.com/356/) by
+a problem.
 
-Don't use this.
+This is code to generate cabin fever challenge scaled correctly for
+any distance, and printer, based upon the cabin fever challenge
+division.
 
-Having said that, this is currently code to generate cabin fever challenge
-scaled correctly for any distance, and printer, based upon the cabin fever
-challenge division.
-
-The intent would be to hook this up to a web form we need only one link for shooters to get an official target pdf. The shooter would input what division they wanted to shoot, what distance and units of measure they wanted to shoot it at, and what paper their printer used.
-
-Therefore If I knew I wanted to shoot Division 2, at 50 yards, and I had printer using A4 paper, I could just put in those parameters and get a pdf to print a correct target for that distance.
+When fed the parameters of Division, Distance, Units of measure, and Paper,
+it makes the target by spitting out pdf code to draw and fill a circle
+of the correct size. 
 
 If the division can be shot at the distance, but the target can not be printed
-on Letter or A4, well, it tells you that.
+on the selecte paper size, it tells you that. 
 
-For current output using the 2025 official target sizes, see the [samples](samples) directory
+I have hooked this up to a web form that can generates the 2025 size targets
+at [https://obtuse.com/cfc/](https://obtuse.com/cfc/), which lets you pick
+the parameters on the form and make any officially shootable target.
+
+For test sample output using the 2025 official target sizes, see the [samples](samples) directory
 
 # Experimental Scaling
+
+<strong> This is not official, do not use this </strong>
 
 For a maths-y discussion of target scaling, see [SCALING.md](SCALING.md)
 
@@ -27,30 +31,9 @@ For current output using target scaling by scoring area accounting for bullet di
 
 If you want to nerd out on target scaling and compare to the official, go for it.
 
-These are NOT the official target diameters from today, and this might not ever be used.
-
-# There are too many files.
-
-Don't panic.
-
-Normally we would not keep anything like a bunch of these pregenerated files aroud, this is just for testing. Were we to use this we would make a form
-for the user to say what they are shooting and generate the target pdf on
-demand.
-
-The code for the program that does this is in the [src](src) directory if you are inclined to read or fiddle with it.
-
-I have hooked this up to a sample page that generates the 2025 size targets
-at [https://obtuse.com/cfc/](https://obtuse.com/cfc/), which lets you pick
-the parameters on the form and make any target.
-
-Alternatively targets can be linked with parameters to generate a single
-target out of a web page source such as:
-
-[Division 1, 100 Yards, Letter](https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=Letter&Distance=100&Units=Yards)
-
-[Division 1, 100 Metres, A4](https://obtuse.com/cgi-bin/cabinfevertarget.cgi?Division=1&Paper=A4&Distance=100&Units=Metres)
-
-Finally, there is a form to generate the experimental targets as
-discussed in [SCALING.md](SCALING.md). This is at
+There is a web form to generate the experimental targets as discussed
+in [SCALING.md](SCALING.md). <string>DO NOT SHOOT THESE TARGETS FOR
+THE CABIN FEVER CHALLENGE</strong> This is at
 [https://obtuse.com/cfc-experimental/](https://obtuse.com/cfc-experimental/). Again,
-this does *NOT* generate correct size targets, so only look at this if you've read the SCALING doc and are curious.
+this does *NOT* generate correct size targets, so only look at this if
+you've read the SCALING doc and are curious. <em>This scheme might not ever be used</em>
