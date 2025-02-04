@@ -37,7 +37,7 @@ The solution actually isn't that hard:
 
 To do this, we consider an actual, or typical bullet width for the division, and keep that constant,
 
-The scoring area is scaled from the "optimal" distance, and the visible target size we print must then be the cirgle left over by removing the bullet width (in this case 8mm from each radius)
+The scoring area is scaled from the "optimal" distance, and the visible target size we print must then be the circle left over by removing the bullet width from the scaled scoring area (in this case we remove 8mm from each radius)
 
 This turns into
 
