@@ -1,13 +1,13 @@
 # Target Scaling Musings
 ## (AKA: Hold on while I overthink this)
 
-When thinking about target scaling, we think about taking the size of a target, and then scaling it to be the same effective size at a different distance. So for example, if we take a 203 MM target at 100 metres, and downsize it to 50 metres, we simply downsize the target to 102MM and we have the same did at 100.  The process is simple, and close enough most of the time.
+When thinking about target scaling, we think about taking the size of a target, and then scaling it to be the same effective size at a different distance. So for example, if we take a 203mm target at 100 metres, and downsize it to 50 metres, we could simply downsize the target to 102mm, and the target is proportionally sized.
 
 ## The target is not the area that scores
 
-However, when we shoot targets, generally, any hit that breaks the outer line of the target counts for score. This means that the effective area that will score is not the area of the target, but rather the area of the target **plus a ring of the diameter of the bullet being fired at it**
+However, when we shoot targets, generally, any hit that breaks the outer line of the target counts for score. This means that the effective area that will score is not the area of the target, but rather the area of the target **plus a ring aound the target of the diameter of the bullet being fired at it**
 
-This leads us to *It is an advantage to shoot a a shorter distance* well, because it is, and it makes us uncomfortable allowing it by "too much"
+So in reducing the range to shoot at, if we scale a target linearly, we have a problem. *It is an advantage to shoot a a shorter distance* .
 
 ## Bullet width matters with large reductions
 
@@ -17,25 +17,27 @@ If we take a target:
 * 102 mm at 50 meters  (radius 51)
 * 51 mm at 25 meters (radius 26)
 
-if we assume (as in, let's say the case of vintage) a competitive rifle will
-make an approximately 8mm hole. The radius of the scoring area changes
+If we assume (as in, let's say the case of vintage) a competitive rifle will
+make an approximately 8mm hole. The radius of the scoring area changes:
 
 At 100 meters the scoring radius is 110 mm (Scoring area .038 m2)
 
-however with the target area changing but the bullet width staying constant we get
+However with the target area changing but the bullet width staying constant the scoring gets effectively bigger at shorter distances:
 
 * At 50 it is 59 mm - equivalent to a 118 mm scoring radius at 100 meters (Scoring area .044 m2 - a 15% larger scoring area than the 100 meter target)
 * St 25 it is 34 mm - equivalent to a 136 mm scoring radius at 100 meters! (Scoring area .056 m2 - a 47% larger scoring area than the 100 meter target!)
 
-While it might be tempting to allow for a 15% advantage to make it easier for people to shoot, a 47% advantage seems really over the top.
+We want to give shooters some flexibility, and while it might be
+tempting to allow for a 15% advantage to make it easier for people to
+shoot the CFC, a 47% advantage is plainly ridiculous.
 
-The solution actually isn't that hard
+The solution actually isn't that hard:
 
 ## Scale the scoring area, not the target.
 
-With this we then consider an actual, or typical bullet width for the division, and keep that constant,
+To do this, we consider an actual, or typical bullet width for the division, and keep that constant,
 
-The scoring area is scaled down from the "optimal" distance, and the visible target size is the cirgle left over by removing the bullet width (in this case 8mm from each radius)
+The scoring area is scaled from the "optimal" distance, and the visible target size we print must then be the cirgle left over by removing the bullet width (in this case 8mm from each radius)
 
 This turns into
 
@@ -50,7 +52,11 @@ There is still a maximum distance, in that we can not really print much larger t
 There is still a ridiculous minimum distance, With the above example somewhere
 around 7 meters we have a scoring radius of less than an 8mm bullet width, so we won't have any visible target left to print.
 
-## Can we use this in CFC?
+A more practical minimum distance is "how many bullet strikes can we put in this and still score the target" - A rough estimate is actually to "fill" the target with the area the bullet, for the number of shots. Some quick experimenting seems to indicate a good cutoff appears to very simply stop when the area of 20 bullet holes becomes greater than the area of the visible target (remembering it will be scored out a bullet width wider)
+
+Needless to say, the target size, minimum distance, etc. just becomes a mathmatical formula, and could generate a target for any distance over the minimum, allowing for things like a 40 meter range, 75 yard range, etc, with a no significant advantage to the shooter.
+
+## Could this be used this in CFC?
 
 This would be completely bonkers and infeasable if we were pre-generating the PDF targets. We'd have way too many files to sort through.
 
@@ -64,9 +70,9 @@ To use this in CFC we could decide to:
 
 Or if we felt like asking the shooter for one more thing when they generate their target:
 
-2) Ask the shooter for the bullet diameter and use that. (I think this might be going too far)
+2) Ask the shooter for the bullet diameter on the web form to make the target and use that.
 
-
+Something makes me thing 1) is enough.
 
 
 
