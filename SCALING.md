@@ -72,7 +72,7 @@ Or if we felt like asking the shooter for one more thing when they generate thei
 
 2) Ask the shooter for the bullet diameter on the web form to make the target and use that.
 
-Something makes me thing 1) is enough.
+Something makes me think 1) is enough.
 
 
 
