@@ -265,7 +265,10 @@ sub makeCFCtarget($$$$$) {
     die "Paper $paper is not valid"
 	unless (($paper eq "A4") |
 		$paper eq "Letter" |
-		$paper eq "11x17"
+		$paper eq "11x17" |
+		$paper eq "12x18" |
+		$paper eq "24x36" |
+		$paper eq "A0"
 	);
 
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
