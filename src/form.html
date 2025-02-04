@@ -2,11 +2,21 @@
 <html lang="en">
 
 <head>
+    <meta charset="utf-8">
     <title>Cabin Fever Challenge Targets</title>
 </head>
 
 <body>
-    <h2>Make a Cabin Fever Challenge Target</h2>
+  <h2>Make a Cabin Fever Challenge Target</h2>
+  <P> These print correctly on the corresponding size paper when the
+    printer is set to the correct size of paper
+  <P>
+    Examples I've measured can be seen <A HREF="measured/">here</A>
+  <P>
+    Depending on your printer, the 203 mm (and esp. 209mm) targets can be
+    cut off on the sides, particularly on A4 - since this just makes it
+    harder, this is fine. 
+    <HR>
     <form METHOD=GET ACTION="https://obtuse.com/cgi-bin/cabinfevertarget.cgi">
       <div>
       <label for="Division">What Division do you want to shoot?<br></label>
@@ -65,6 +75,11 @@
 	       name = "Paper"
 	       value= "Letter" checked>
 	<label for="Letter">Letter</label>
+	<input type="radio"
+	       id = "11x17"
+	       name = "Paper"
+	       value= "11x17">
+	<label for="11x17">11x17</label>
       </div>
       <br>
       <div>

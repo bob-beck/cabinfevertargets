@@ -262,8 +262,11 @@ sub Scaled_radius($$$)
 sub makeCFCtarget($$$$$) {
     my ($division, $distance, $units, $paper, $experimental) = @_;
 
-    die "Paper must be A4 or Letter"
-	unless (($paper eq "A4") | $paper eq "Letter");
+    die "Paper $paper is not valid"
+	unless (($paper eq "A4") |
+		$paper eq "Letter" |
+		$paper eq "11x17"
+	);
 
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
 		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
@@ -337,8 +340,12 @@ sub makeCFCtarget($$$$$) {
 	$txt->crlf();
 	$txt->crlf();
 	$txt->text("You can not shoot Divison $division at $distance $units!");
-    } elsif ($diameterinmm >= 210) {
-	# You can shoot at this distance, but we can't print it on A4/Letter.
+    } elsif ($actualsize * 2 > $x2 - $x1 || $actualsize * 2 > $y2 - $y1) {
+	# You can shoot at this distance, but we can't print the width
+	# of the target within the size of the paper. Note that this
+	# assumes we can print the entire page, which isn't really normal
+	# but every printer is different, so passing this could still mean
+	# tht the target gets slightly cropped by the printer.
 	$txt->crlf();
 	$txt->crlf();
 	$txt->text("Division $division max target size at $distance $units is $diameterinmm mm");
