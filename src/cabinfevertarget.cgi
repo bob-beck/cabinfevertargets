@@ -217,9 +217,9 @@ sub Scaled_radius($$$)
     my $metricdistance = convert_distance($distance, $units, "Metres");
     my $yardsdistance = convert_distance($distance, $units, "Yards");
 
-    if ($yardsdistance < $min_dist[$division]) {
-	return 0;
-    }
+    # if ($yardsdistance < $min_dist[$division]) {
+    #	return 0;
+    # }
 
     # Ths scoring radius is the target radius, plus the bullet diameter.
     my $optimal_scoring_r = $target_radius[$division] +
@@ -236,12 +236,14 @@ sub Scaled_radius($$$)
     # for the given bullet diameter.
     my $targetradius = $scaled_scoring_r - $bullet_dia[$division];
 
-    # Clamp negative or ridiculously small values to 0, you're way too
-    # close to shoot at it..
-    if ($targetradius <= 10 / mm) {
+    # Can we fit 20 bullet areas into the visible area? If not,
+    # don't allow it to be shot at this distance.
+    my $bullet_radius = ($bullet_dia[$division]) / 2;
+    my $bullet_area = 3.1415 * $bullet_radius * $bullet_radius;
+    my $target_area = 3.1415 * $targetradius * $targetradius;
+    if ($bullet_area * 20 > $target_area) {
 	return 0;
     }
-
     return $targetradius;
 }
 
