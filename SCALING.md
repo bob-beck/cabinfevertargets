@@ -52,7 +52,7 @@ There is still a maximum distance, in that we can not really print much larger t
 There is still a ridiculous minimum distance, With the above example somewhere
 around 7 metres we have a scoring radius of less than an 8mm bullet width, so we won't have any visible target left to print.
 
-A more practical minimum distance is "how many bullet strikes can we put in this and still score the target" - A rough estimate is actually to "fill" the target with the area the bullet, for the number of shots. Some quick experimenting seems to indicate a good cutoff appears to very simply stop when the area of 20 bullet holes becomes greater than the area of the visible target (remembering it will be scored out a bullet width wider)
+A more practical minimum distance is "how many bullet strikes can we put in this and still score the target" - A rough estimate is actually to "fill" the target with the area the bullet, for the number of shots. Some quick experimenting seems to indicate a good cutoff appears to very simply stop when the area of 30 bullet holes becomes greater than the area of the visible target (remembering it will be scored out a bullet width wider)
 
 Needless to say, the target size, minimum distance, etc. just becomes a mathmatical formula, and could generate a target for any distance over the minimum, allowing for things like a 40 meter range, 75 yard range, etc, with a no significant advantage to the shooter.
 

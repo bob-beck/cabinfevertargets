@@ -236,12 +236,12 @@ sub Scaled_radius($$$)
     # for the given bullet diameter.
     my $targetradius = $scaled_scoring_r - $bullet_dia[$division];
 
-    # Can we fit 20 bullet areas into the visible area? If not,
+    # Can we fit 30 bullet areas into the visible area? If not,
     # don't allow it to be shot at this distance.
     my $bullet_radius = ($bullet_dia[$division]) / 2;
     my $bullet_area = 3.1415 * $bullet_radius * $bullet_radius;
     my $target_area = 3.1415 * $targetradius * $targetradius;
-    if ($bullet_area * 20 > $target_area) {
+    if ($bullet_area * 30 > $target_area) {
 	return 0;
     }
     return $targetradius;
