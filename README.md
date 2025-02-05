@@ -19,6 +19,8 @@ I have hooked this up to a web form that can generates the 2025 size targets
 at [https://obtuse.com/cfc/](https://obtuse.com/cfc/), which lets you pick
 the parameters on the form and make any officially shootable target.
 
+The source code is in th the [src](src) directory if you want to peruse the program. (You can also submit pull requests or issues if you like)
+
 For test sample output using the 2025 official target sizes, see the [samples](samples) directory
 
 # Experimental Scaling
