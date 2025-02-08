@@ -270,7 +270,11 @@ sub makeCFCtarget($$$$$) {
 		$paper eq "11x17" |
 		$paper eq "12x18" |
 		$paper eq "24x36" |
-		$paper eq "A0"
+		$paper eq "36x48" |
+		$paper eq "A0"	  |
+		$paper eq "A1"    |
+		$paper eq "A2"    |
+		$paper eq "A3"    
 	);
 
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
