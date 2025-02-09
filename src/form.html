@@ -9,11 +9,12 @@
 
 <body>
   <h2>Make a Cabin Fever Challenge Target</h2>
-  <P> These print correctly on the corresponding size paper when the
-    printer is set to the correct size of paper.
-  <P>
-    Examples I've measured can be seen <A HREF="measured/">here</A>
-  <P>
+    <P>
+    Targets should print correctly when the printer is set to the
+    selected size of paper. When printing be sure to select the
+    corresponding paper size and avoid requesting the print be scaled or
+    adjusted to fit the page.
+    <P>
     Depending on your printer, the 203 mm and 209mm targets can be
     cut off on the sides, particularly on A4 paper. Since this just makes it
     harder, this is fine.
@@ -65,7 +66,7 @@
 	<br>
       </div>
       <div>
-	<p> What paper size will you print it on?</p>
+	<p> What paper size will you print it on?<br>
 	<input type="radio"
 	       id = "A4"
 	       name = "Paper"
@@ -76,6 +77,11 @@
 	       name = "Paper"
 	       value= "Letter" checked>
 	<label for="Letter">Letter</label>
+	<input type="radio"
+	       id = "Legal"
+	       name = "Paper"
+	       value= "Legal">
+	<label for="Legal">Legal</label>
 	<input type="radio"
 	       id = "11x17"
 	       name = "Paper"
@@ -122,7 +128,6 @@
 	       value= "48x48">
 	<label for="48x48">48x48</label>
       </div>
-      <br>
       <div>
 	<label for="Distance">Distance to shoot at</label>
         <select id="Distance" name="Distance">
@@ -154,13 +159,13 @@
     <em>You should check the target prints at the correct width before shooting it.</em>
     <P>If your target does not print correctly, you should try:
       <ul>
-	<li> Ensuring that when your computer/device sent this to your printer, it was selecting the paper size corresponding to what you selected here.
-	<li> Check your printer's settings to ensure both the printer and the tray in the printer are set to the size of paper that you have selected here. <em>Note that printers are infernal devices, and merely putting the correct size paper in them may not, as you might expect, do this for you.</em>
+	<li> Ensuring that when your computer/device sent this to your printer, it was selecting the paper size corresponding to what you selected here, and was not requesting page scaling, or shrink/expand to fit the page.
+	<li> Checking your printer's settings to ensure both the printer and the tray in the printer are set to the size of paper that you have selected here. <em>Note that printers are infernal devices, and merely putting the correct size paper in them may not, as you might expect, do this for you.</em>
 	<li> Saving the generated target you get here to a file with the '.pdf' extension and then opening it on your computer to print it directly to your printer, instead of printing it from the web browser you are using right now.
       </ul>
       <HR>
       <ul>
-	<li>If you would prefer the older targets we have traditionally used to these <A HREF=old.html>Click Here</A>
+	<li>If you would prefer the older targets we have traditionally used to these <A HREF=old.html>These are Available Here</A>
       </ul>
     </form>
     
