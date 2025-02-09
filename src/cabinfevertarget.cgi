@@ -272,7 +272,7 @@ sub makeCFCtarget($$$$$) {
 		$paper eq "12x18" |
 		$paper eq "24x36" |
 		$paper eq "36x48" |
-		$paper wq "48x48" |
+		$paper eq "48x48" |
 		$paper eq "A0"	  |
 		$paper eq "A1"    |
 		$paper eq "A2"    |
