@@ -18,6 +18,7 @@ use strict;
 
 use PDF::API2;
 use CGI ':standard';
+use File::Slurp;
 
 ##################################################################
 # As I have noted for many years, *when* I go to Hell for the many
@@ -236,15 +237,23 @@ sub Scaled_radius($$$)
     # for the given bullet diameter.
     my $targetradius = $scaled_scoring_r - $bullet_dia[$division];
 
-    # Can we fit 30 bullet areas into the visible area? If not,
-    # don't allow it to be shot at this distance.
     my $bullet_radius = ($bullet_dia[$division]) / 2;
     my $bullet_area = 3.1415 * $bullet_radius * $bullet_radius;
     my $target_area = 3.1415 * $targetradius * $targetradius;
-    if ($bullet_area * 30 > $target_area) {
-	return 0;
+    my $rounds_per_match = 20;
+    if ($division == 5) {
+	$rounds_per_match = 4;
     }
-    return $targetradius;
+    if (($bullet_area * (2 * $rounds_per_match)) < $target_area) {
+	# Can we fit 40 bullet areas into the visible area? If so we can
+	# score 20 hits per target
+	return ($targetradius, 20);
+    } elsif (($bullet_area * ($rounds_per_match / 2)) < $target_area) {
+	return ($targetradius, 5);
+    } else {
+	# We use one target per round
+	return ($targetradius, 1);
+    }
 }
 
 # Make a Cabin Fever Challenge Target, arguments are division number,
@@ -307,11 +316,14 @@ sub makeCFCtarget($$$$$) {
     my $txt  = $page -> text;
 
     my $actualsize;
+    my $rounds_per_target = 20;
     # What is the radius ot the circle we should print, in points?
     if (!$experimental) {
 	$actualsize = official_radius($division, $distance, $units);
     } else {
-	$actualsize = Scaled_radius($division, $distance, $units);
+	($actualsize, $rounds_per_target) = Scaled_radius($division,
+							  $distance,
+							  $units);
     }
 
     # Compute how big in millimetres it is supposed to be. We
@@ -351,6 +363,11 @@ sub makeCFCtarget($$$$$) {
     $txt->crlf();
     $txt->text("Must be printed on $paper size paper with printer set to print $paper");
 
+    if ($diameterinmm < 9) {
+	# Don't allow super small targets. You will have to be further away.
+	$actualsize = 0;
+    }
+    
     if ($actualsize == 0) {
 	# We can not shoot at this distance
 	$txt->crlf();
@@ -374,18 +391,105 @@ sub makeCFCtarget($$$$$) {
     } else {
 	$txt->font($pdf->corefont('Helvetica'), 12);
 	$txt->crlf();
-	$txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
-	$txt->crlf();
-	$txt->text("If the target has not printed correctly, check that your printer and tray settings are set to $paper");
-
-	# Finally, let's draw the big black circle for them to poke holes in.
 	$gfx -> fillcolor('black');
-	# find the centre of the page.
-	my $midx = ($x2 - $x1) / 2;
-	my $midy = ($y2 - $y1) / 2;
-	# make the circle at the centre of the page
-	$gfx -> circle( $midx, $midy, $actualsize);
-	$gfx -> fill;
+	my $xstart = $x1 + 15/mm + $actualsize;
+	my $xend = $x2 - 15/mm  - $actualsize;
+	my $ystart = $y1 + 15/mm + $actualsize;
+	my $yend = $y2 - 60/mm - $actualsize;
+
+	my $number_of_targets = 20 / $rounds_per_target;
+	if ($division == 5) {
+	    if ($number_of_targets > 1) {
+		$number_of_targets = $number_of_targets / 5;
+		$rounds_per_target = $rounds_per_target / 5;
+	    }
+	} 
+	    
+
+	if ($number_of_targets == 20 &&
+	    ($xend - $xstart) / 4 < $actualsize * 6) {
+	    # If the targets would end up very close together
+	    # when printed 5 across, insist the user print
+	    # 5 copies and shoot 1 round per target
+	    $number_of_targets = 4;
+	} elsif ($number_of_targets == 4 &&
+	    ($xend - $xstart) < $actualsize * 6) {
+	    # If the targets would end up very close together
+	    # when printed 2 across, insist the user print
+	    # 5 copies and shoot 5 rounds per target
+	    $number_of_targets = 1;
+	}
+	
+	if ($number_of_targets == 1) {
+	    $txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
+	    $txt->crlf();
+	    $txt->text("If the target has not printed correctly, check that your printer and tray settings are set to $paper");
+	    if ($rounds_per_target == 5) {
+		$txt->crlf();
+		$txt->text("Each target may score a maximum of 5 hits. Shoot 5 rounds at each target.");
+		$txt->crlf();
+		$txt->text("Print 4 copies of this page to shoot the match!");
+	    }
+	    # find the centre of the page.
+	    my $midx = ($x2 - $x1) / 2;
+	    my $midy = ($y2 - $y1) / 2;
+	    # make the circle at the centre of the page
+	    $gfx -> fillcolor('black');
+	    $gfx -> strokecolor('black');
+	    $gfx -> circle( $midx, $midy, $actualsize);
+	    $gfx -> paint;
+	} else {
+	    # Finally, let's draw the circles for them to poke holes in.
+	    if ($number_of_targets == 20) {
+	    $txt->text("Check that each target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
+	    $txt->crlf();
+	    $txt->text("If the targets have not printed correctly, check that your printer and tray settings are set to $paper");
+    	    $txt->crlf();
+	    $txt->text("Each target may score a maximum of 1 hit. Shoot 1 round at each target.");
+	    # draw 5 targets in four rows.
+	    for (my $j = 0; $j < 4; $j++) {
+		my $ydelta = $j * (($yend - $ystart) / 3);
+		for (my $i = 0; $i < 5; $i++) {
+		    my $xdelta = $i * (($xend - $xstart) / 4);
+		    my $gfx = $page->graphics();
+		    $gfx -> fillcolor('black');
+		    $gfx -> strokecolor('black');
+		    $gfx -> circle( $xstart + $xdelta, $ystart + $ydelta, $actualsize);
+		    $gfx -> paint;
+		}
+	    }
+	    } else {
+		# 1 round per target, targets alternate up/down on page
+		$txt->text("Check that each target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
+		$txt->crlf();
+		$txt->text("If the targets have not printed correctly, check that your printer and tray settings are set to $paper");
+		$txt->crlf();
+		if ($rounds_per_target == 1) {
+		    $txt->text("Each target may score a maximum of 1 hit. Shoot 1 round at each target.");
+		    if ($division != 5) {
+			$txt->crlf();
+			$txt->text("Print 5 copies of this page to shoot the match!");
+		    }
+		} else {
+		    $txt->text("Each target may score a maximum of 5 hits. Shoot 5 rounds at each target.");
+		}
+		my $ydelta = 0;
+		my $xdelta = 0;
+		for (my $j = 0; $j < 4; $j++) {
+		    my $gfx = $page->graphics();
+		    $gfx -> fillcolor('black');
+		    $gfx -> strokecolor('black');
+		    $gfx -> circle( $xstart + $xdelta, $ystart + $ydelta, $actualsize);
+		    $gfx -> paint;
+		    if ($xdelta == 0) {
+			$xdelta = $xend - $xstart;
+		    } elsif ($ydelta == 0) {
+			$ydelta = $yend - $ystart;
+			$xdelta = 0;
+		    }
+		}
+	    }
+	}
     }
 
 #    my $filename = "Division-$division-" .$div_name[$division]."-$distance-$units-$paper.pdf";
@@ -401,7 +505,86 @@ my $Distance = $cgi->param('Distance');
 my $Units = $cgi->param('Units'); 
 my $Paper = $cgi->param('Paper');
 my $Experimental = $cgi->param('Experimental');
+my $OldTargets = $cgi->param('OldTargets');
 
-my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, $Experimental);
-print $cgi->header('application/pdf');
-print $pdfstring;
+if (!$OldTargets) {
+    if (!$Distance) {
+	$Distance = 100;
+	if ($Division == 5 || $Division == 6) {
+	    $Distance = 50;
+	}
+    }
+    my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, $Experimental);
+    print $cgi->header('application/pdf');
+    print $pdfstring;
+} else {
+    my $file_content = "";
+    if ($Division == 6) {
+	if ($Units eq "Yards") {
+	    if ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/CFC_22_Rimfire_Target.pdf');
+	    } elsif ($Distance == 25) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/Y25_D6_25yd.pdf');
+	    }
+	} else {
+	    if ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/CFC_22_Rimfire_Target.pdf');
+	    } elsif ($Distance == 25) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/M25_D6_25m.pdf');
+	    }
+	}
+    }
+    if ($Division == 5) {
+	if ($Units eq "Yards") {
+	    if ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/Y100_D1-4_7_100yd.pdf');
+	    }
+	} else {
+	    if ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/MAD_MIN_2.pdf');
+	    }
+	}
+    }
+    else {
+	# Div 1-4, 7
+	if ($Units eq"Yards") {
+	    if ($Distance == 100) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/Y100_D1-4_7_100yd.pdf');
+	    } elsif ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/M50_D1-4_7_50m.pdf');
+	    }
+	} else {
+	    if ($Distance == 100) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/MAD_MIN_2.pdf');
+	    } elsif ($Distance == 50) {
+		$file_content = read_file('/var/www/foad/cfc/oldcfctargets/M50_D1-4_7_50m.pdf');
+	    }
+	}
+    }
+    if ($file_content ne "") {
+	print $cgi->header('application/pdf');
+	print $file_content;
+    } else {
+	print $cgi->header('text/html');
+	print <<EOT;
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>No Target At That Distance</title>
+</head>
+
+<body>
+  <H2>Sorry</H2>
+  You can't shoot Division $Division at $Distance $Units
+  <HR>
+  You can <A HREF="https://obtuse.com/cfc/">Try Again</A>
+</body>
+</html>
+EOT
+    }
+}	    
+    
+
