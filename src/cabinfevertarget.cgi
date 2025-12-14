@@ -212,7 +212,7 @@ sub official_radius($$$)
 # pre-validated, and units will be a selector so we don't need to
 # worry about things like Metre being spelled in English instead
 # of 'Murrican.
-sub makeCFCtarget($$$$$) {
+sub makeCFCtarget($$$$) {
     my ($division, $distance, $units, $paper) = @_;
 
     die "Paper $paper is not valid"
@@ -237,6 +237,9 @@ sub makeCFCtarget($$$$$) {
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
     $year = $year+1900;
+    if ($mon >= 11) {
+	$year++; # By December show the next year.
+    }
 
     my $pdf  = PDF::API2->new;
 
