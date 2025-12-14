@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Copyright (c) 2025 Bob Beck <beck@obtuse.com>
+# Copyright (c) 2025-2026 Bob Beck <beck@obtuse.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -191,71 +191,11 @@ sub official_diameter($$$)
 }
 
 #####
-# Return the 2025 target radius in points.
+# Return the 2026 target radius in points.
 sub official_radius($$$)
 {
     my ($division, $distance, $units) = @_;
     return ((official_diameter($division, $distance, $units) / 2) / mm);
-}
-
-#####
-# Return a scaled target radius, in points, given a division,
-# distance, and units.  Absolutely not the official 2025 values - we
-# can ponder this for possible future use.
-sub Scaled_radius($$$)
-{
-    my ($division, $distance, $units) = @_;
-
-    my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25, 25); # Yards
-    ## The optimal target radius
-    my @target_radius = (0, R8, R8, R8, R8, R8, R2, R8, R8); # Radius
-    ## The distance at which the optimal target is shot
-    my @target_distance = (0, 100, 100, 100, 100, 50, 25, 100, 100); # Metres
-    ## Bullet diameter that adds to scoring area
-    my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 15/mm, 6/mm, 8/mm, 8/mm);
-
-
-    die if ($division > 8 || $division < 1);
-
-    my $metricdistance = convert_distance($distance, $units, "Metres");
-    my $yardsdistance = convert_distance($distance, $units, "Yards");
-
-    # if ($yardsdistance < $min_dist[$division]) {
-    #	return 0;
-    # }
-
-    # Ths scoring radius is the target radius, plus the bullet diameter.
-    my $optimal_scoring_r = $target_radius[$division] +
-    $bullet_dia[$division];
-
-    # Scale the scoring radius of the desired distance based on the scoring
-    # radius at the optimal distance for the division.
-    my $scaled_scoring_r = $optimal_scoring_r *
-	($metricdistance / $target_distance[$division]);
-
-    # Now remove the bullet width from the scaled scoring radius to get a
-    # correctly scaled target radius for the circle we will draw.
-    # This should give an equivalent scoring area at any distance
-    # for the given bullet diameter.
-    my $targetradius = $scaled_scoring_r - $bullet_dia[$division];
-
-    my $bullet_radius = ($bullet_dia[$division]) / 2;
-    my $bullet_area = 3.1415 * $bullet_radius * $bullet_radius;
-    my $target_area = 3.1415 * $targetradius * $targetradius;
-    my $rounds_per_match = 20;
-    if ($division == 5) {
-	$rounds_per_match = 4;
-    }
-    if (($bullet_area * (2 * $rounds_per_match)) < $target_area) {
-	# Can we fit 40 bullet areas into the visible area? If so we can
-	# score 20 hits per target
-	return ($targetradius, 20);
-    } elsif (($bullet_area * ($rounds_per_match / 2)) < $target_area) {
-	return ($targetradius, 5);
-    } else {
-	# We use one target per round
-	return ($targetradius, 1);
-    }
 }
 
 # Make a Cabin Fever Challenge Target, arguments are division number,
@@ -273,7 +213,7 @@ sub Scaled_radius($$$)
 # worry about things like Metre being spelled in English instead
 # of 'Murrican.
 sub makeCFCtarget($$$$$) {
-    my ($division, $distance, $units, $paper, $experimental) = @_;
+    my ($division, $distance, $units, $paper) = @_;
 
     die "Paper $paper is not valid"
 	unless (($paper eq "A4") |
@@ -281,6 +221,7 @@ sub makeCFCtarget($$$$$) {
 		$paper eq "Legal" |
 		$paper eq "11x17" |
 		$paper eq "12x18" |
+		$paper eq "18x24" |
 		$paper eq "24x36" |
 		$paper eq "36x48" |
 		$paper eq "48x48" |
@@ -293,12 +234,6 @@ sub makeCFCtarget($$$$$) {
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
 		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
 		    "Manual-Irons");
-    if ($experimental) {
-	@div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
-		    "Single-Shot", "Muzzleloaders", "Air Rifle",
-		     "Manual-Irons", "Single Load Repeater");
-    }
-
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
     $year = $year+1900;
@@ -325,15 +260,8 @@ sub makeCFCtarget($$$$$) {
     my $txt  = $page -> text;
 
     my $actualsize;
-    my $rounds_per_target = 20;
     # What is the radius ot the circle we should print, in points?
-    if (!$experimental) {
-	$actualsize = official_radius($division, $distance, $units);
-    } else {
-	($actualsize, $rounds_per_target) = Scaled_radius($division,
-							  $distance,
-							  $units);
-    }
+    $actualsize = official_radius($division, $distance, $units);
 
     # Compute how big in millimetres it is supposed to be. We
     # display this right on the target for confirmation purposes.
@@ -347,12 +275,7 @@ sub makeCFCtarget($$$$$) {
     $txt->position($x1 + 30, $y2 - 30);
 
     #First line is what year and Division this is for.
-    if ($experimental) {
-	$txt->text("EXPERIMENTAL DO NOT USE, Division $division (".$div_name[$division].")");
-    }
-    else {
-	$txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
-    }
+    $txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
     $txt->crlf();
 
     # Second line is the distance in requested units, an equivalent
@@ -406,99 +329,17 @@ sub makeCFCtarget($$$$$) {
 	my $ystart = $y1 + 15/mm + $actualsize;
 	my $yend = $y2 - 60/mm - $actualsize;
 
-	my $number_of_targets = 20 / $rounds_per_target;
-	if ($division == 5) {
-	    if ($number_of_targets > 1) {
-		$number_of_targets = $number_of_targets / 5;
-		$rounds_per_target = $rounds_per_target / 5;
-	    }
-	} 
-	    
-
-	if ($number_of_targets == 20 &&
-	    ($xend - $xstart) / 4 < $actualsize * 6) {
-	    # If the targets would end up very close together
-	    # when printed 5 across, insist the user print
-	    # 5 copies and shoot 1 round per target
-	    $number_of_targets = 4;
-	} elsif ($number_of_targets == 4 &&
-	    ($xend - $xstart) < $actualsize * 6) {
-	    # If the targets would end up very close together
-	    # when printed 2 across, insist the user print
-	    # 5 copies and shoot 5 rounds per target
-	    $number_of_targets = 1;
-	}
-	
-	if ($number_of_targets == 1) {
-	    $txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
-	    $txt->crlf();
-	    $txt->text("If the target has not printed correctly, check that your printer and tray settings are set to $paper");
-	    if ($rounds_per_target == 5) {
-		$txt->crlf();
-		$txt->text("Each target may score a maximum of 5 hits. Shoot 5 rounds at each target.");
-		$txt->crlf();
-		$txt->text("Print 4 copies of this page to shoot the match!");
-	    }
-	    # find the centre of the page.
-	    my $midx = ($x2 - $x1) / 2;
-	    my $midy = ($y2 - $y1) / 2;
-	    # make the circle at the centre of the page
-	    $gfx -> fillcolor('black');
-	    $gfx -> strokecolor('black');
-	    $gfx -> circle( $midx, $midy, $actualsize);
-	    $gfx -> paint;
-	} else {
-	    # Finally, let's draw the circles for them to poke holes in.
-	    if ($number_of_targets == 20) {
-	    $txt->text("Check that each target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
-	    $txt->crlf();
-	    $txt->text("If the targets have not printed correctly, check that your printer and tray settings are set to $paper");
-    	    $txt->crlf();
-	    $txt->text("Each target may score a maximum of 1 hit. Shoot 1 round at each target.");
-	    # draw 5 targets in four rows.
-	    for (my $j = 0; $j < 4; $j++) {
-		my $ydelta = $j * (($yend - $ystart) / 3);
-		for (my $i = 0; $i < 5; $i++) {
-		    my $xdelta = $i * (($xend - $xstart) / 4);
-		    my $gfx = $page->graphics();
-		    $gfx -> fillcolor('black');
-		    $gfx -> strokecolor('black');
-		    $gfx -> circle( $xstart + $xdelta, $ystart + $ydelta, $actualsize);
-		    $gfx -> paint;
-		}
-	    }
-	    } else {
-		# 1 round per target, targets alternate up/down on page
-		$txt->text("Check that each target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
-		$txt->crlf();
-		$txt->text("If the targets have not printed correctly, check that your printer and tray settings are set to $paper");
-		$txt->crlf();
-		if ($rounds_per_target == 1) {
-		    $txt->text("Each target may score a maximum of 1 hit. Shoot 1 round at each target.");
-		    if ($division != 5) {
-			$txt->crlf();
-			$txt->text("Print 5 copies of this page to shoot the match!");
-		    }
-		} else {
-		    $txt->text("Each target may score a maximum of 5 hits. Shoot 5 rounds at each target.");
-		}
-		my $ydelta = 0;
-		my $xdelta = 0;
-		for (my $j = 0; $j < 4; $j++) {
-		    my $gfx = $page->graphics();
-		    $gfx -> fillcolor('black');
-		    $gfx -> strokecolor('black');
-		    $gfx -> circle( $xstart + $xdelta, $ystart + $ydelta, $actualsize);
-		    $gfx -> paint;
-		    if ($xdelta == 0) {
-			$xdelta = $xend - $xstart;
-		    } elsif ($ydelta == 0) {
-			$ydelta = $yend - $ystart;
-			$xdelta = 0;
-		    }
-		}
-	    }
-	}
+	$txt->text("Check that the target is $diameterinmm mm ($diameterininches inches) wide before shooting!");
+	$txt->crlf();
+	$txt->text("If the target has not printed correctly, check that your printer and tray settings are set to $paper");
+	# find the centre of the page.
+	my $midx = ($x2 - $x1) / 2;
+	my $midy = ($y2 - $y1) / 2;
+	# make the circle at the centre of the page
+	$gfx -> fillcolor('black');
+	$gfx -> strokecolor('black');
+	$gfx -> circle( $midx, $midy, $actualsize);
+	$gfx -> paint;
     }
 
 #    my $filename = "Division-$division-" .$div_name[$division]."-$distance-$units-$paper.pdf";
@@ -513,7 +354,6 @@ my $Division = $cgi->param('Division');
 my $Distance = $cgi->param('Distance'); 
 my $Units = $cgi->param('Units'); 
 my $Paper = $cgi->param('Paper');
-my $Experimental = $cgi->param('Experimental');
 my $OldTargets = $cgi->param('OldTargets');
 
 if (!$OldTargets) {
@@ -523,7 +363,7 @@ if (!$OldTargets) {
 	    $Distance = 50;
 	}
     }
-    my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, $Experimental);
+    my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper);
     print $cgi->header('application/pdf');
     print $pdfstring;
 } else {
