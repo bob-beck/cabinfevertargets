@@ -17,6 +17,7 @@ use warnings;
 use strict;
 
 use PDF::API2;
+use Imager::QRCode;
 use CGI ':standard';
 use File::Slurp;
 
@@ -256,11 +257,19 @@ sub makeCFCtarget($$$$) {
     # correct in the common cases with the correct paper size selected.
     $pdf->mediabox($paper);
     my $page = $pdf  -> page;
+    my $txt  = $page -> text;
+
     $page->boundaries(media => $paper);
+
+    my $score_url = "https://docs.google.com/forms/d/e/1FAIpQLScKjAEYQ-7QwaK2GmMisHfpIa-0CRsG_EH8ZMrv0bYf-F8pYQ/viewform";
+    my $qrcode_object = $pdf->barcode('qr', $score_url);
+    $txt->font($pdf->corefont('Helvetica Bold'), 10);
+    $txt->position(40, 36);
+    $txt->text("Submit Score");
+    $page->object($qrcode_object, 36, 42, 72 / $qrcode_object->width());
 
     # XXX decide if we should mess with prepend or not?
     my $gfx  = $page -> graphics();
-    my $txt  = $page -> text;
 
     my $actualsize;
     # What is the radius ot the circle we should print, in points?
@@ -272,10 +281,9 @@ sub makeCFCtarget($$$$) {
     # Metric is hard in some places.
     my $diameterininches = round(($actualsize / 72) * 2.0, 2);
 
-    # Finally, put some text on the target
     $txt->font($pdf->corefont('Helvetica Bold'), 18);
     my ($x1, $y1, $x2, $y2) = $page->boundaries('media');
-    $txt->position($x1 + 30, $y2 - 30);
+    $txt->translate($x1 + 30, $y2 - 30);
 
     #First line is what year and Division this is for.
     $txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
