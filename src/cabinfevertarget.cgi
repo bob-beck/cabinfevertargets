@@ -74,6 +74,8 @@ use File::Slurp;
 use constant R8 => (4 * 72);
 # Target is an 4 inch (102mm) circle at 50M, therefore a 2 inch radius
 use constant R4 => (2 * 72);
+# Target is a 2 inch (51 mm) circle at 25M - therefore a one inch radius
+use constant R2 => (1 * 72);
 
 # When scaling, we convert everythig to metric.
 use constant mm => 25.4 / 72;
@@ -204,16 +206,16 @@ sub Scaled_radius($$$)
 {
     my ($division, $distance, $units) = @_;
 
-    my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25); # Yards
+    my @min_dist = (0, 25, 25, 25, 25, 25, 25, 25, 25); # Yards
     ## The optimal target radius
-    my @target_radius = (0, R8, R8, R8, R8, R8, R4, R8); # Radius
+    my @target_radius = (0, R8, R8, R8, R8, R8, R2, R8, R8); # Radius
     ## The distance at which the optimal target is shot
-    my @target_distance = (0, 100, 100, 100, 100, 50, 50, 100); # Metres
+    my @target_distance = (0, 100, 100, 100, 100, 50, 25, 100, 100); # Metres
     ## Bullet diameter that adds to scoring area
-    my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 12/mm, 6/mm, 8/mm);
+    my @bullet_dia = (0, 8/mm, 8/mm, 8/mm, 12/mm , 15/mm, 6/mm, 8/mm, 8/mm);
 
 
-    die if ($division > 7 || $division < 1);
+    die if ($division > 8 || $division < 1);
 
     my $metricdistance = convert_distance($distance, $units, "Metres");
     my $yardsdistance = convert_distance($distance, $units, "Yards");
@@ -291,6 +293,13 @@ sub makeCFCtarget($$$$$) {
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
 		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
 		    "Manual-Irons");
+    if ($experimental) {
+	@div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
+		    "Single-Shot", "Muzzleloaders", "Air Rifle",
+		     "Manual-Irons", "Single Load Repeater");
+    }
+
+
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
     $year = $year+1900;
 
