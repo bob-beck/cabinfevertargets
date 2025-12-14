@@ -136,68 +136,6 @@ sub convert_distance($$$) {
     return $metricdistance;
 }
 
-#######
-# Return official target diameter in mm from spreadsheet values.
-# for division, distance, units. returns 0 if you can't shoot
-# the division at that distance.
-sub official_diameter($$$)
-{
-    my ($division, $distance, $units) = @_;
-
-    die "Bogus division $division" if ($division > 7 || $division < 1);
-    return 0 if (!($units eq "Yards" || $units eq "Metres"));
-
-    my @distances = (25, 50, 100, 150, 200, 300);
-    my @ymaxcf = (0,  89, 184, 279, 374, 564);
-    my @mmaxcf = (0,  99, 203, 308, 412, 621);
-    my @ymaxrf = (43,  92, 190, 0, 0, 0);
-    my @mmaxrf = (48,  102, 209, 0, 0, 0);
-    my @ymaxml = (0, 184, 0, 0, 0, 0);
-    my @mmaxml = (0, 203, 0, 0, 0, 0);
-
-    my $dindex = -1;
-    for my $i (0 .. $#distances) {
-	if ($distance eq $distances[$i]) {
-	    $dindex = $i;
-	    last;
-	}
-    }
-    if ($dindex == -1) {
-	return 0;
-    }
-
-    # look it up.
-    my @max;
-    if ($units eq "Yards") {
-	if ($division == 5) {
-	    @max = @ymaxml;
-	}
-	elsif ($division == 6) {
-	    @max = @ymaxrf;
-	}else {
-	    @max = @ymaxcf;
-	}
-    } else {
-	if ($division == 5) {
-	    @max = @mmaxml;
-	}
-	elsif ($division == 6) {
-	    @max = @mmaxrf;
-	}else {
-	    @max = @mmaxcf;
-	}
-    }
-    return $max[$dindex];
-}
-
-#####
-# Return the 2025 target radius in points.
-sub official_radius($$$)
-{
-    my ($division, $distance, $units) = @_;
-    return ((official_diameter($division, $distance, $units) / 2) / mm);
-}
-
 #####
 # Return a scaled target radius, in points, given a division,
 # distance, and units.  Absolutely not the official 2025 values - we
@@ -273,7 +211,7 @@ sub Scaled_radius($$$)
 # worry about things like Metre being spelled in English instead
 # of 'Murrican.
 sub makeCFCtarget($$$$$) {
-    my ($division, $distance, $units, $paper, $experimental) = @_;
+    my ($division, $distance, $units, $paper) = @_;
 
     die "Paper $paper is not valid"
 	unless (($paper eq "A4") |
@@ -291,14 +229,8 @@ sub makeCFCtarget($$$$$) {
 	);
 
     my @div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
-		    "Single-Shot", "Muzzleloaders", "22-Rimfire",
-		    "Manual-Irons");
-    if ($experimental) {
-	@div_name = ("Nonsuch", "Vintage", "Modern-Open", "Manual-Open",
-		    "Single-Shot", "Muzzleloaders", "Air Rifle",
-		     "Manual-Irons", "Single Load Repeater");
-    }
-
+		 "Single-Shot", "Muzzleloaders", "Air Rifle",
+		 "Manual-Irons", "Single Load Repeater");
 
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime();
     $year = $year+1900;
@@ -325,15 +257,11 @@ sub makeCFCtarget($$$$$) {
     my $txt  = $page -> text;
 
     my $actualsize;
-    my $rounds_per_target = 20;
+my $rounds_per_target = 20;
     # What is the radius ot the circle we should print, in points?
-    if (!$experimental) {
-	$actualsize = official_radius($division, $distance, $units);
-    } else {
-	($actualsize, $rounds_per_target) = Scaled_radius($division,
-							  $distance,
-							  $units);
-    }
+    ($actualsize, $rounds_per_target) = Scaled_radius($division,
+						      $distance,
+						      $units);
 
     # Compute how big in millimetres it is supposed to be. We
     # display this right on the target for confirmation purposes.
@@ -347,12 +275,7 @@ sub makeCFCtarget($$$$$) {
     $txt->position($x1 + 30, $y2 - 30);
 
     #First line is what year and Division this is for.
-    if ($experimental) {
-	$txt->text("EXPERIMENTAL DO NOT USE, Division $division (".$div_name[$division].")");
-    }
-    else {
-	$txt->text("Cabin Fever Challenge $year, Division $division (".$div_name[$division].")");
-    }
+    $txt->text("EXPERIMENTAL DO NOT USE, Division $division (".$div_name[$division].")");
     $txt->crlf();
 
     # Second line is the distance in requested units, an equivalent
@@ -513,7 +436,6 @@ my $Division = $cgi->param('Division');
 my $Distance = $cgi->param('Distance'); 
 my $Units = $cgi->param('Units'); 
 my $Paper = $cgi->param('Paper');
-my $Experimental = $cgi->param('Experimental');
 my $OldTargets = $cgi->param('OldTargets');
 
 if (!$OldTargets) {
@@ -523,7 +445,7 @@ if (!$OldTargets) {
 	    $Distance = 50;
 	}
     }
-    my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper, $Experimental);
+    my $pdfstring = makeCFCtarget($Division, $Distance, $Units, $Paper);
     print $cgi->header('application/pdf');
     print $pdfstring;
 } else {
