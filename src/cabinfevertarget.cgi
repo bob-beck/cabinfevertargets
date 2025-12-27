@@ -261,7 +261,8 @@ sub makeCFCtarget($$$$) {
 
     $page->boundaries(media => $paper);
 
-    my $score_url = "https://docs.google.com/forms/d/e/1FAIpQLScKjAEYQ-7QwaK2GmMisHfpIa-0CRsG_EH8ZMrv0bYf-F8pYQ/viewform";
+
+    my $score_url = "https://docs.google.com/forms/d/e/1FAIpQLSeZpvxSsx_lCsZM6xeVezNjxFefWq-RGFchFPmxJdkSo6mXFQ/viewform";
     my $qrcode_object = $pdf->barcode('qr', $score_url);
     $txt->font($pdf->corefont('Helvetica Bold'), 10);
     $txt->position(40, 36);
