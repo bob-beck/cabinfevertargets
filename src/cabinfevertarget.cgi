@@ -260,14 +260,23 @@ sub makeCFCtarget($$$$) {
     my $txt  = $page -> text;
 
     $page->boundaries(media => $paper);
+    my ($x1, $y1, $x2, $y2) = $page->boundaries('media');
 
 
     my $score_url = "https://docs.google.com/forms/d/e/1FAIpQLSeZpvxSsx_lCsZM6xeVezNjxFefWq-RGFchFPmxJdkSo6mXFQ/viewform";
+    my $rules_url = "https://riflechair.com/viewer/CFC/RULES.pdf";
+
     my $qrcode_object = $pdf->barcode('qr', $score_url);
+    my $rules_object = $pdf->barcode('qr', $rules_url);
     $txt->font($pdf->corefont('Helvetica Bold'), 10);
-    $txt->position(40, 36);
+    $txt->translate($x1 + 40, $y1 + 36);
     $txt->text("Submit Score");
     $page->object($qrcode_object, 36, 42, 72 / $qrcode_object->width());
+    $txt->translate($x2 - 72 - 40, $y1 + 36);
+    $txt->text("Read The Rules");
+    $page->object($rules_object, $x2 - 72 - 32, $y1 + 42, 72 / $qrcode_object->width());
+    $txt->translate((($x2 - $x1) / 2) - 96, $y1 + 36);
+    $txt->text("https://riflechair.com/cabin-fever-challenge");
 
     # XXX decide if we should mess with prepend or not?
     my $gfx  = $page -> graphics();
@@ -283,7 +292,6 @@ sub makeCFCtarget($$$$) {
     my $diameterininches = round(($actualsize / 72) * 2.0, 2);
 
     $txt->font($pdf->corefont('Helvetica Bold'), 18);
-    my ($x1, $y1, $x2, $y2) = $page->boundaries('media');
     $txt->translate($x1 + 30, $y2 - 30);
 
     #First line is what year and Division this is for.
